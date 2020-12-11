@@ -61,6 +61,9 @@ class TestSP(TestAccountAccount):
                 reconcile=True,
             )
         )
+        # set account receivable on partner
+        partner_id = self.env.ref("base.res_partner_3")
+        partner_id.property_account_receivable_id = self.a_recv.id
         self.a_sale = self.env["account.account"].search(
             [
                 (
@@ -146,14 +149,15 @@ class TestSP(TestAccountAccount):
                 self.assertEqual(line.debit, 100)
         self.assertTrue(vat_line)
         self.assertTrue(credit_line)
-        invoice.action_cancel()
+        invoice.button_draft()
+        invoice.button_cancel()
 
         invoice2 = self.move_model.with_context(default_move_type="out_invoice").create(
             {
                 "partner_id": self.env.ref("base.res_partner_3").id,
                 "journal_id": self.sales_journal.id,
                 "fiscal_position_id": self.sp_fp.id,
-                "payment_term_id": self.term_15_30.id,
+                "invoice_payment_term_id": self.term_15_30.id,
                 "invoice_line_ids": [
                     (
                         0,
