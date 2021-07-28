@@ -96,16 +96,40 @@ class AccountInvoice(models.Model):
             #
             context['lang'] = invoice.partner_id.lang
 
-            for note in invoice.delivery_note_ids:
-                new_lines.append((0, False, {
-                    'sequence': 99, 'display_type': 'line_note',
-                    'name':
-                        _("""Delivery Note "{}" of {}""").
-                        format(note.name, note.date.strftime(DATE_FORMAT)),
-                    'delivery_note_id': note.id
-                }))
+            for line in invoice.invoice_line_ids:
+                for sale in line.sale_line_ids:
+                    delivery_note_line = \
+                        invoice.delivery_note_ids.mapped('line_ids') \
+                        & sale.delivery_note_line_ids
+                    delivery_note = delivery_note_line.mapped('delivery_note_id')
+                    for note in delivery_note:
+                        new_lines.append((0, False, {
+                            'sequence': line.sequence - 1,
+                            'display_type': 'line_note',
+                            'name':
+                                _("""Delivery Note "{}" of {}""").format(
+                                    note.name,
+                                    note.date.strftime(DATE_FORMAT)
+                                ),
+                            'delivery_note_id': note.id
+                        }))
 
             invoice.write({'invoice_line_ids': new_lines})
+
+    @api.multi
+    def unlink(self):
+        # Ripristino il valore delle delivery note
+        # per poterle rifatturare
+        inv_lines = self.mapped('invoice_line_ids')
+        all_dnls = inv_lines.mapped('sale_line_ids').mapped('delivery_note_line_ids')
+        inv_dnls = self.mapped('delivery_note_ids').mapped('line_ids')
+        dnls_to_unlink = all_dnls & inv_dnls
+        res = super().unlink()
+        dnls_to_unlink.sync_invoice_status()
+        dnls_to_unlink.mapped('delivery_note_id')._compute_invoice_status()
+        for dn in dnls_to_unlink.mapped('delivery_note_id'):
+            dn.state = 'confirm'
+        return res
 
 
 class AccountInvoiceLine(models.Model):
