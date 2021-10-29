@@ -96,23 +96,32 @@ class AccountInvoice(models.Model):
             #
             context['lang'] = invoice.partner_id.lang
 
-            for line in invoice.invoice_line_ids:
-                for sale in line.sale_line_ids:
-                    delivery_note_line = \
-                        invoice.delivery_note_ids.mapped('line_ids') \
-                        & sale.delivery_note_line_ids
-                    delivery_note = delivery_note_line.mapped('delivery_note_id')
-                    for note in delivery_note:
-                        new_lines.append((0, False, {
-                            'sequence': line.sequence - 1,
-                            'display_type': 'line_note',
-                            'name':
-                                _("""Delivery Note "{}" of {}""").format(
-                                    note.name,
-                                    note.date.strftime(DATE_FORMAT)
-                                ),
-                            'delivery_note_id': note.id
-                        }))
+            sequence = 0
+            for note in invoice.delivery_note_ids:
+                vals = {
+                    'display_type': 'line_note',
+                    'sequence': sequence,
+                    'name':
+                        _("""Delivery Note "{}" of {}""").
+                        format(note.name, note.date.strftime(DATE_FORMAT)),
+                    'delivery_note_id': note.id
+                }
+                for line in invoice.invoice_line_ids:
+                    for sale in line.sale_line_ids:
+                        delivery_note_line = \
+                            invoice.delivery_note_ids.mapped('line_ids') \
+                            & sale.delivery_note_line_ids
+                        delivery_note_ids = delivery_note_line.mapped('delivery_note_id')
+                        delivery_note = delivery_note_ids.filtered(
+                            lambda dn: dn.id == note.id)
+                        if not delivery_note:
+                            continue
+                        note_row = (0, False, vals)
+                        if note_row not in new_lines:
+                            new_lines.append(note_row)
+                            sequence += 1
+                        new_lines.append((1, line.id, {'sequence': sequence}))
+                        sequence += 1
 
             invoice.write({'invoice_line_ids': new_lines})
 
