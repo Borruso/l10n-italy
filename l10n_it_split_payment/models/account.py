@@ -8,6 +8,7 @@ from odoo.exceptions import UserError
 from odoo.tools import float_compare
 
 
+# XXX
 class AccountFiscalPosition(models.Model):
     _inherit = "account.fiscal.position"
 
