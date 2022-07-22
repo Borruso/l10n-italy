@@ -123,7 +123,8 @@ class AccountMove(models.Model):
                 write_off_line_vals["price_unit"],
                 precision_rounding=self.currency_id.rounding,
             ):
-                line_sp.with_context(check_move_validity=False).update(
+                line_sp = line_sp.with_context(check_move_validity=False)
+                line_sp.update(
                     {
                         "price_unit": 0.0,
                         "amount_currency": 0.0,
@@ -138,7 +139,8 @@ class AccountMove(models.Model):
                 write_off_line_vals["price_unit"],
                 precision_rounding=self.currency_id.rounding,
             ):
-                line_sp.with_context(check_move_validity=False).update(
+                line_sp = line_sp.with_context(check_move_validity=False)
+                line_sp.update(
                     {
                         "price_unit": 0.0,
                         "amount_currency": 0.0,
