@@ -32,7 +32,7 @@ class AccountMove(models.Model):
         super()._compute_amount()
         for move in self:
             if move.split_payment:
-                if not move.is_sale_document():
+                if move.is_purchase_document():
                     raise UserError(
                         _("Can't handle supplier invoices with split payment")
                     )
@@ -118,12 +118,16 @@ class AccountMove(models.Model):
         write_off_line_vals = self._build_debit_line()
         line_sp = self.line_ids.filtered(lambda l: l.is_split_payment)
         if line_sp:
-            if self.move_type == "out_invoice" and float_compare(
-                line_sp.price_unit,
-                write_off_line_vals["price_unit"],
-                precision_rounding=self.currency_id.rounding,
+            if (
+                self.move_type == "out_invoice"
+                and float_compare(
+                    line_sp.price_unit,
+                    write_off_line_vals["price_unit"],
+                    precision_rounding=self.currency_id.rounding,
+                )
+                != 0
             ):
-                line_sp = line_sp.with_context(check_move_validity=False)
+                line_sp = line_sp[0].with_context(check_move_validity=False)
                 line_sp.update(
                     {
                         "price_unit": 0.0,
@@ -134,12 +138,16 @@ class AccountMove(models.Model):
                 )
                 self.set_receivable_line_ids()
                 line_sp.write(write_off_line_vals)
-            elif self.move_type == "out_refund" and float_compare(
-                line_sp.price_unit,
-                write_off_line_vals["price_unit"],
-                precision_rounding=self.currency_id.rounding,
+            elif (
+                self.move_type == "out_refund"
+                and float_compare(
+                    line_sp.price_unit,
+                    write_off_line_vals["price_unit"],
+                    precision_rounding=self.currency_id.rounding,
+                )
+                != 0
             ):
-                line_sp = line_sp.with_context(check_move_validity=False)
+                line_sp = line_sp[0].with_context(check_move_validity=False)
                 line_sp.update(
                     {
                         "price_unit": 0.0,
