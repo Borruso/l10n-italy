@@ -3,3 +3,6 @@
 * Stefano Consolaro <https://github.com/mymage>
 * Alex Comba <alex.comba@agilebg.com>
 * Giuseppe Borruso <gborruso@dinamicheaziendali.it>
+* `TAKOBI <https://takobi.online>`_:
+
+  * Simone Rubino <sir@takobi.online>

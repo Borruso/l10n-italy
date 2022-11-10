@@ -2,6 +2,7 @@
 # Copyright 2019 Stefano Consolaro (Associazione PNLUG - Gruppo Odoo)
 # Copyright 2021 Alex Comba - Agile Business Group
 # Copyright 2022 Giuseppe Borruso - Dinamiche Aziendali
+# Copyright 2022 Simone Rubino - TAKOBI
 
 from odoo import _, api, fields, models
 from odoo.exceptions import ValidationError
@@ -22,5 +23,9 @@ class AppointmentCode(models.Model):
                     % appointment_code.l10n_it_code
                 )
 
-    l10n_it_code = fields.Char()
-    l10n_it_name = fields.Char()
+    l10n_it_code = fields.Char(
+        string="Code",
+    )
+    l10n_it_name = fields.Char(
+        string="Name",
+    )
