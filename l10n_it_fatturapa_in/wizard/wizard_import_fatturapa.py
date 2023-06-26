@@ -629,7 +629,8 @@ class WizardImportFatturapa(models.TransientModel):
                 "name": "Riepilogo Aliquota {}".format(line.AliquotaIVA),
                 "sequence": nline,
                 "account_id": credit_account_id,
-                "price_unit": float(line.ImponibileImporto),
+                "price_unit": float(abs(line.ImponibileImporto)),
+                "exclude_from_invoice_tab": False,
             }
         )
         return retLine
@@ -1625,6 +1626,7 @@ class WizardImportFatturapa(models.TransientModel):
                             "move_id": invoice.id,
                             "account_id": credit_account_id,
                             "quantity": 1,
+                            "exclude_from_invoice_tab": False,
                         }
                     )
                     if welfareLine.Ritenuta:
@@ -1639,6 +1641,7 @@ class WizardImportFatturapa(models.TransientModel):
                         line_vals["invoice_line_tax_wt_ids"] = [
                             (6, 0, [wt.id for wt in wt_founds])
                         ]
+                        line_vals["exclude_from_invoice_tab"] = True
                     if self.env.company.cassa_previdenziale_product_id:
                         cassa_previdenziale_product = (
                             self.env.company.cassa_previdenziale_product_id
