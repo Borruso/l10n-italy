@@ -13,13 +13,15 @@ odoo.define("fiscal_epos_print.models", function (require) {
                 refund_date,
                 refund_report,
                 refund_doc_num,
-                refund_cash_fiscal_serial
+                refund_cash_fiscal_serial,
+                refund_full_refund
             ) {
                 const selectedOrder = this.get_order();
                 selectedOrder.refund_date = refund_date;
                 selectedOrder.refund_report = refund_report;
                 selectedOrder.refund_doc_num = refund_doc_num;
                 selectedOrder.refund_cash_fiscal_serial = refund_cash_fiscal_serial;
+                selectedOrder.refund_full_refund = refund_full_refund;
             }
 
             set_lottery_code_data(lottery_code) {
@@ -42,6 +44,7 @@ odoo.define("fiscal_epos_print.models", function (require) {
                 this.refund_date = null;
                 this.refund_doc_num = null;
                 this.refund_cash_fiscal_serial = null;
+                this.refund_full_refund = false;
                 this.has_refund = false;
                 this.fiscal_receipt_number = null;
                 this.fiscal_receipt_amount = null;
@@ -99,6 +102,7 @@ odoo.define("fiscal_epos_print.models", function (require) {
                 this.refund_date = json.refund_date;
                 this.refund_doc_num = json.refund_doc_num;
                 this.refund_cash_fiscal_serial = json.refund_cash_fiscal_serial;
+                this.refund_full_refund = json.refund_full_refund;
                 this.fiscal_receipt_number = json.fiscal_receipt_number;
                 this.fiscal_receipt_amount = json.fiscal_receipt_amount;
                 this.fiscal_receipt_date = json.fiscal_receipt_date;
@@ -125,6 +129,7 @@ odoo.define("fiscal_epos_print.models", function (require) {
                 json.refund_date = this.refund_date || null;
                 json.refund_doc_num = this.refund_doc_num || null;
                 json.refund_cash_fiscal_serial = this.refund_cash_fiscal_serial || null;
+                json.refund_full_refund = this.refund_full_refund || false;
                 json.fiscal_receipt_number = this.fiscal_receipt_number || null;
                 json.fiscal_receipt_amount = this.fiscal_receipt_amount || null;
                 // Parsed by backend
@@ -151,6 +156,7 @@ odoo.define("fiscal_epos_print.models", function (require) {
                 json.refund_report = this.refund_report;
                 json.refund_doc_num = this.refund_doc_num;
                 json.refund_cash_fiscal_serial = this.refund_cash_fiscal_serial;
+                json.refund_full_refund = this.refund_full_refund;
                 json.fiscal_receipt_number = this.fiscal_receipt_number;
                 json.fiscal_receipt_amount = this.fiscal_receipt_amount;
                 json.fiscal_receipt_date = this.fiscal_receipt_date;
