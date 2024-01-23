@@ -77,39 +77,41 @@ class StockPickingCheckerMixin(models.AbstractModel):
     @api.model
     def _check_pickings_src_locations(self, pickings):
         src_locations = pickings.mapped("location_id")
+        src_warehouses = src_locations.get_warehouse()
 
-        if not src_locations:
+        if not src_warehouses:
             raise ValidationError(
                 _(
                     "The pickings you've selected don't seem to "
-                    "have any location of departure."
+                    "have any warehouse of departure."
                 )
             )
 
-        if len(src_locations) > 1:
+        if len(src_warehouses) > 1:
             raise ValidationError(
                 _(
                     "You need to select pickings with all the same "
-                    "location of departure."
+                    "warehouse of departure."
                 )
             )
 
     @api.model
     def _check_pickings_dest_locations(self, pickings):
         dest_locations = pickings.mapped("location_dest_id")
+        dest_warehouses = dest_locations.get_warehouse()
 
-        if not dest_locations:
+        if not dest_warehouses:
             raise ValidationError(
                 _(
                     "The pickings you've selected don't seem to have any "
-                    "location of destination."
+                    "warehouse of destination."
                 )
             )
 
-        if len(dest_locations) > 1:
+        if len(dest_warehouses) > 1:
             raise ValidationError(
                 _(
-                    "You need to select pickings with all the same location "
+                    "You need to select pickings with all the same warehouse "
                     "of destination."
                 )
             )
