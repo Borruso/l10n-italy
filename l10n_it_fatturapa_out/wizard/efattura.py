@@ -75,14 +75,21 @@ class EFatturaOut:
             # e quantity (vd. format_quantity)
             if line.quantity < 0:
                 res = -res
-
             # force EUR unless we want the original currency
             if not original_currency:
-                res = fpa_to_eur(res, line=line)
+                res = fpa_to_eur(res, line)
+
+            price = sign * res
+            if (
+                line.move_id.move_type == "out_refund"
+                and price > 0
+                and line.move_id.rc_purchase_invoice_id
+            ):
+                price = price * -1
 
             # XXX arrotondamento?
             res = "{prezzo:.{precision}f}".format(
-                prezzo=sign * res, precision=price_precision
+                prezzo=price, precision=price_precision
             )
             return res
 
