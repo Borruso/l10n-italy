@@ -146,15 +146,15 @@ class AccountInvoice(models.Model):
                                 invoice_line.delivery_note_id = (
                                     note_line.delivery_note_id.id
                                 )
-                    if dn_invoice_lines:
-                        new_lines.append(
-                            (
-                                0,
-                                False,
-                                self._prepare_note_dn_value(sequence, dn),
-                            )
+                    if not dn_invoice_lines:
+                        sequence -= 1
+                    new_lines.append(
+                        (
+                            0,
+                            False,
+                            self._prepare_note_dn_value(sequence, dn),
                         )
-                        sequence += 1
+                    )
                     for invoice_line in dn_invoice_lines:
                         invoice_line.sequence = sequence
                         sequence += 1
