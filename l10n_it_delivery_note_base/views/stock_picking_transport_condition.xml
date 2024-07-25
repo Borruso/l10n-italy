@@ -27,6 +27,10 @@
                                 name="price_to_show"
                                 groups="l10n_it_delivery_note_base.show_product_related_fields"
                             />
+                            <field
+                                name="available_delivery_note_type_ids"
+                                widget="many2many_tags"
+                            />
                         </group>
                     </group>
                     <notebook>

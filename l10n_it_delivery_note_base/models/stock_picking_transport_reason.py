@@ -13,6 +13,9 @@ class StockPickingTransportReason(models.Model):
     _description = "Reason of Transport"
     _order = "sequence, name, id"
 
+    def _default_available_delivery_note_types(self):
+        return self.env["stock.delivery.note.type"].search([])
+
     active = fields.Boolean(default=True)
     sequence = fields.Integer(index=True, default=10)
     name = fields.Char(
@@ -22,6 +25,11 @@ class StockPickingTransportReason(models.Model):
         translate=True,
     )
     note = fields.Html(string="Internal note")
+    available_delivery_note_type_ids = fields.Many2many(
+        "stock.delivery.note.type",
+        string="Available Delivery Note Types",
+        default=_default_available_delivery_note_types,
+    )
 
     _sql_constraints = [
         ("name_uniq", "unique(name)", "This reason of transport already exists!")

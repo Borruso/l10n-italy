@@ -16,6 +16,9 @@ class StockPickingTransportCondition(models.Model):
     _description = "Condition of Transport"
     _order = "sequence, name, id"
 
+    def _default_available_delivery_note_types(self):
+        return self.env["stock.delivery.note.type"].search([])
+
     active = fields.Boolean(default=True)
     sequence = fields.Integer(index=True, default=10)
     name = fields.Char(
@@ -38,6 +41,11 @@ class StockPickingTransportCondition(models.Model):
     #
 
     note = fields.Html(string="Internal note")
+    available_delivery_note_type_ids = fields.Many2many(
+        "stock.delivery.note.type",
+        string="Available Delivery Note Types",
+        default=_default_available_delivery_note_types,
+    )
 
     _sql_constraints = [
         ("name_uniq", "unique(name)", "This condition of transport already exists!")

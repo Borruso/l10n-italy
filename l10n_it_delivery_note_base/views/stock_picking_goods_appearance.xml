@@ -21,7 +21,14 @@
                             <field name="name" default_focus="true" />
                         </h1>
                     </div>
-                    <group />
+                    <group>
+                        <group>
+                            <field
+                                name="available_delivery_note_type_ids"
+                                widget="many2many_tags"
+                            />
+                        </group>
+                    </group>
                     <notebook>
                         <page name="internal_notes" string="Internal notes">
                             <field name="note" />

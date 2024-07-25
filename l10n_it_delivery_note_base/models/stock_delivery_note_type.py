@@ -9,7 +9,7 @@
 # @author: Nextev Srl <odoo@nextev.it>
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl.html).
 
-from odoo import _, fields, models
+from odoo import _, api, fields, models
 
 DELIVERY_NOTE_TYPE_CODES = [
     ("incoming", "Incoming"),
@@ -24,6 +24,9 @@ class StockDeliveryNoteType(models.Model):
     _description = "Delivery Note Type"
     _order = "sequence, name, id"
 
+    def _default_available_delivery_note_types(self):
+        return self.env["stock.delivery.note.type"].search([])
+
     active = fields.Boolean(default=True)
     sequence = fields.Integer(index=True, default=10)
     name = fields.Char(index=True, required=True, translate=True)
@@ -36,16 +39,24 @@ class StockDeliveryNoteType(models.Model):
     )
 
     default_transport_condition_id = fields.Many2one(
-        "stock.picking.transport.condition", string="Condition of transport"
+        "stock.picking.transport.condition",
+        string="Condition of transport",
+        domain="[('available_delivery_note_type_ids', 'in', [id])]",
     )
     default_goods_appearance_id = fields.Many2one(
-        "stock.picking.goods.appearance", string="Appearance of goods"
+        "stock.picking.goods.appearance",
+        string="Appearance of goods",
+        domain="[('available_delivery_note_type_ids', 'in', [id])]",
     )
     default_transport_reason_id = fields.Many2one(
-        "stock.picking.transport.reason", string="Reason of transport"
+        "stock.picking.transport.reason",
+        string="Reason of transport",
+        domain="[('available_delivery_note_type_ids', 'in', [id])]",
     )
     default_transport_method_id = fields.Many2one(
-        "stock.picking.transport.method", string="Method of transport"
+        "stock.picking.transport.method",
+        string="Method of transport",
+        domain="[('available_delivery_note_type_ids', 'in', [id])]",
     )
 
     sequence_id = fields.Many2one("ir.sequence", string="Numeration", required=True)
@@ -62,6 +73,40 @@ class StockDeliveryNoteType(models.Model):
             "This delivery note type already exists!",
         )
     ]
+
+    def _get_models_to_update(self):
+        """
+        Returns a list of models that should be updated with the delivery note type.
+        """
+        return [
+            "stock.picking.transport.condition",
+            "stock.picking.goods.appearance",
+            "stock.picking.transport.reason",
+            "stock.picking.transport.method",
+        ]
+
+    def _update_available_delivery_note_types(self):
+        """
+        Adds the new delivery note type to the list of available delivery note types
+        for all records in the specified models.
+        """
+        models = self._get_models_to_update()
+        for model in models:
+            records = self.env[model].search([])
+            if records:
+                records.write(
+                    {
+                        "available_delivery_note_type_ids": [
+                            (4, dn_type.id) for dn_type in self
+                        ]
+                    }
+                )
+
+    @api.model_create_multi
+    def create(self, vals_list):
+        dn_types = super().create(vals_list)
+        dn_types._update_available_delivery_note_types()
+        return dn_types
 
     def goto_sequence(self, **kwargs):
         self.ensure_one()
