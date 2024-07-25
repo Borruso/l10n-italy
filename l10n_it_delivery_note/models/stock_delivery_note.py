@@ -298,6 +298,60 @@ class StockDeliveryNote(models.Model):
         )
     ]
 
+    @api.constrains(
+        "type_id",
+        "transport_condition_id",
+        "goods_appearance_id",
+        "transport_reason_id",
+        "transport_method_id",
+    )
+    def _check_delivery_note_type_consistency(self):
+        for note in self:
+            if (
+                note.transport_condition_id
+                and note.type_id
+                not in note.transport_condition_id.available_delivery_note_type_ids
+            ):
+                raise UserError(
+                    _(
+                        "The delivery note type is not valid "
+                        "for the selected transport condition."
+                    )
+                )
+            if (
+                note.goods_appearance_id
+                and note.type_id
+                not in note.goods_appearance_id.available_delivery_note_type_ids
+            ):
+                raise UserError(
+                    _(
+                        "The delivery note type is not valid "
+                        "for the selected goods appearance."
+                    )
+                )
+            if (
+                note.transport_reason_id
+                and note.type_id
+                not in note.transport_reason_id.available_delivery_note_type_ids
+            ):
+                raise UserError(
+                    _(
+                        "The delivery note type is not valid "
+                        "for the selected transport reason."
+                    )
+                )
+            if (
+                note.transport_method_id
+                and note.type_id
+                not in note.transport_method_id.available_delivery_note_type_ids
+            ):
+                raise UserError(
+                    _(
+                        "The delivery note type is not valid "
+                        "for the selected transport method."
+                    )
+                )
+
     @api.depends("name", "partner_id", "partner_ref", "partner_id.display_name")
     def name_get(self):
         result = []
