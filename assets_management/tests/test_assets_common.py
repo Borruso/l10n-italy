@@ -331,6 +331,38 @@ class TestAssets(SavepointCase):
         self.assertEqual(purchase_invoice.state, "posted")
         return purchase_invoice
 
+    def _create_sale_invoice(self, asset, amount=7000, invoice_date=None, post=True):
+        invoice_line_vals = {
+            "account_id": asset.category_id.asset_account_id.id,
+            "quantity": 1,
+            "price_unit": amount,
+        }
+        sale_invoice = self.env["account.move"].create(
+            {
+                "move_type": "out_invoice",
+                "invoice_date": invoice_date,
+                "partner_id": self.env.ref("base.partner_demo").id,
+                "journal_id": self.env["account.journal"]
+                .search(
+                    [
+                        ("type", "=", "sale"),
+                    ],
+                    limit=1,
+                )
+                .id,
+                "invoice_line_ids": [
+                    (
+                        0,
+                        0,
+                        invoice_line_vals,
+                    )
+                ],
+            }
+        )
+        if post:
+            sale_invoice.action_post()
+        return sale_invoice
+
     def _create_entry(self, account, amount, post=True):
         """Create an entry that adds `amount` to `account`."""
         entry_form = Form(self.env["account.move"])
