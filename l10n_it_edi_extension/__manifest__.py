@@ -12,6 +12,7 @@
     "license": "AGPL-3",
     "depends": [
         "l10n_it_edi",
+        "l10n_it_edi_stamp",
     ],
     "data": [
         "data/invoice_it_template.xml",
