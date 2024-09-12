@@ -239,48 +239,6 @@ class AccountMoveInherit(models.Model):
 
         return res
 
-    def _l10n_it_edi_get_tax_representative(self, body_tree):
-        if body_tree.xpath("//RappresentanteFiscale"):
-            vat = get_text(body_tree, "//RappresentanteFiscale//IdCodice")
-            codice_fiscale = get_text(
-                body_tree, "//RappresentanteFiscale//CodiceFiscale"
-            )
-            self = self.with_context(skip_create_partner=True)
-            if tax_representative := self._l10n_it_edi_search_partner(
-                self.company_id, vat, codice_fiscale, ""
-            ):
-                self.l10n_it_edi_tax_representative_id = tax_representative.id
-            else:
-                if tax_representative := self._l10n_it_edi_create_partner(
-                    body_tree, "//RappresentanteFiscale", vat, codice_fiscale
-                ):
-                    self.l10n_it_edi_tax_representative_id = tax_representative.id
-
-    def _l10n_it_edi_get_intermediary(self, body_tree):
-        if body_tree.xpath("//TerzoIntermediarioOSoggettoEmittente"):
-            vat = get_text(
-                body_tree, "//TerzoIntermediarioOSoggettoEmittente//IdCodice"
-            )
-            codice_fiscale = get_text(
-                body_tree, "//TerzoIntermediarioOSoggettoEmittente//CodiceFiscale"
-            )
-            self = self.with_context(skip_create_partner=True)
-            if intermediary := self._l10n_it_edi_search_partner(
-                self.company_id, vat, codice_fiscale, ""
-            ):
-                self.l10n_it_edi_intermediary_id = intermediary.id
-            else:
-                if intermediary := self._l10n_it_edi_create_partner(
-                    body_tree,
-                    "//TerzoIntermediarioOSoggettoEmittente",
-                    vat,
-                    codice_fiscale,
-                ):
-                    self.l10n_it_edi_intermediary_id = intermediary.id
-
-        if sender := get_text(body_tree, "//SoggettoEmittente"):
-            self.l10n_it_edi_sender = sender
-
     def _l10n_it_edi_get_extra_info(
         self, company, document_type, body_tree, incoming=True
     ):
@@ -288,8 +246,8 @@ class AccountMoveInherit(models.Model):
             company, document_type, body_tree, incoming=incoming
         )
 
-        self._l10n_it_edi_get_tax_representative(body_tree)
-        self._l10n_it_edi_get_intermediary(body_tree)
+        if sender := get_text(body_tree, "//SoggettoEmittente"):
+            self.l10n_it_edi_sender = sender
 
         if rounding := get_float(body_tree, ".//DatiGeneraliDocumento/Arrotondamento"):
             self.l10n_it_edi_rounding = rounding
@@ -730,3 +688,105 @@ class AccountMoveInherit(models.Model):
                 currency_rounding=self.currency_id.rounding,
             )
         return error_message
+
+    @api.model
+    def _l10n_it_buyer_seller_info(self):
+        buyer_seller_info = super()._l10n_it_buyer_seller_info()
+        partners_info = {
+            "buyer": buyer_seller_info["buyer"],
+            "seller": buyer_seller_info["seller"],
+        }
+
+        for partner_role, partner_info in partners_info.items():
+            if partner_role == "buyer":
+                partner_info_xpath = "//CessionarioCommittente//DatiAnagrafici"
+            elif partner_role == "seller":
+                partner_info_xpath = "//CedentePrestatore//DatiAnagrafici"
+            else:
+                continue
+            partner_info["name_xpath"] = (
+                f"{partner_info_xpath}//Anagrafica//Denominazione"
+            )
+            partner_info["first_name_xpath"] = f"{partner_info_xpath}//Anagrafica//Nome"
+            partner_info["last_name_xpath"] = (
+                f"{partner_info_xpath}//Anagrafica//Cognome"
+            )
+            partner_info["eori_code_xpath"] = (
+                f"{partner_info_xpath}//Anagrafica//CodEORI"
+            )
+            partner_info["country_code_xpath"] = (
+                f"{partner_info_xpath}//IdFiscaleIVA//IdPaese"
+            )
+        return buyer_seller_info
+
+    def _l10n_it_edi_extension_prepare_partner_values(self, tree, section_xpath=None):
+        if section_xpath:
+            partner_info = {
+                "name_xpath": f"{section_xpath}//Denominazione",
+                "first_name_xpath": f"{section_xpath}//Nome",
+                "last_name_xpath": f"{section_xpath}//Cognome",
+                "country_code_xpath": f"{section_xpath}//IdPaese",
+                "vat_xpath": f"{section_xpath}//IdCodice",
+                "codice_fiscale_xpath": f"{section_xpath}//CodiceFiscale",
+                "eori_code_xpath": f"{section_xpath}//CodEORI",
+            }
+        else:
+            buyer_seller_info = self._l10n_it_buyer_seller_info()
+            is_incoming = self.is_purchase_document(include_receipts=True)
+            partner_role = "seller" if is_incoming else "buyer"
+            partner_info = buyer_seller_info[partner_role]
+
+        name = get_text(tree, partner_info["name_xpath"])
+        country_code = get_text(tree, partner_info["country_code_xpath"])
+        country = self.env["res.country"].search([("code", "=", country_code)], limit=1)
+        vals = {
+            "vat": get_text(tree, partner_info["vat_xpath"]),
+            "l10n_it_codice_fiscale": get_text(
+                tree, partner_info["codice_fiscale_xpath"]
+            ),
+            "is_company": bool(len(name)),
+            "l10n_edi_it_eori_code": get_text(tree, partner_info["eori_code_xpath"]),
+            "country_id": country.id,
+        }
+
+        if name:
+            vals["name"] = name
+        else:
+            # Remove fields check when module partner_firstname
+            # is migrated and added as a dependency
+            partner_fields = self.env["res.partner"]._fields.keys()
+            first_name = get_text(tree, partner_info["first_name_xpath"])
+            last_name = get_text(tree, partner_info["last_name_xpath"])
+            if "firstname" in partner_fields:
+                vals["firstname"] = first_name
+                vals["lastname"] = last_name
+            else:
+                vals["name"] = " ".join(filter(None, [first_name, last_name]))
+        return vals
+
+    def _l10n_it_edi_extension_create_partner(self, invoice_data, section_xpath=None):
+        partner_values = self._l10n_it_edi_extension_prepare_partner_values(
+            invoice_data, section_xpath
+        )
+        return self.env["res.partner"].create(partner_values)
+
+    def _l10n_it_edi_import_invoice(self, invoice, data, is_new):
+        invoice = super()._l10n_it_edi_import_invoice(invoice, data, is_new)
+
+        body_tree = data["xml_tree"]
+        if invoice and not invoice.partner_id:
+            partner = self._l10n_it_edi_extension_create_partner(body_tree)
+            invoice.partner_id = partner
+
+        if body_tree.xpath("//RappresentanteFiscale"):
+            tax_representative = self._l10n_it_edi_extension_create_partner(
+                body_tree, section_xpath="//RappresentanteFiscale"
+            )
+            invoice.l10n_it_edi_tax_representative_id = tax_representative.id
+
+        if body_tree.xpath("//TerzoIntermediarioOSoggettoEmittente"):
+            intermediary = self._l10n_it_edi_extension_create_partner(
+                body_tree, section_xpath="//TerzoIntermediarioOSoggettoEmittente"
+            )
+            invoice.l10n_it_edi_intermediary_id = intermediary.id
+        return invoice
