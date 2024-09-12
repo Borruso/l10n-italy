@@ -10,6 +10,11 @@ from odoo.addons.l10n_it_edi.tests.common import TestItEdi
 
 
 class TestFatturaPAXMLValidation(TestItEdi):
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        cls.module = "l10n_it_edi_extension"
+
     def _edi_import_invoice(self, filename):
         moves = self.env["account.move"]
         path = f"l10n_it_edi_extension/tests/import_xmls/{filename}"
@@ -197,3 +202,22 @@ class TestFatturaPAXMLValidation(TestItEdi):
                             f"Field {field} of invoice {move.display_name} "
                             f"does not match",
                         )
+
+    def test_create_partner(self):
+        """If partner does not exist, it is created during import."""
+        partner_name = "SOCIETA' ALPHA SRL"
+        # pre-condition
+        partner = self.env["res.partner"].search(
+            [
+                ("name", "=", partner_name),
+            ],
+            limit=1,
+        )
+        self.assertFalse(partner)
+
+        # Act
+        invoice = self._assert_import_invoice("IT02780790107_11004.xml", [{}])
+
+        # Assert
+        partner = invoice.partner_id
+        self.assertEqual(partner.name, partner_name)

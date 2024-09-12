@@ -70,6 +70,8 @@ Le funzionalità principali incluse sono:
 -  Fa sì che il filtro per data utilizzato nel wizard si basi sulla Data
    Fattura (invoice_date) invece che sulla Data Contabile (date).
 
+5. Se il partner di una fattura elettronica non esiste, viene creato.
+
 <https://www.fatturapa.gov.it>
 
 **English**
@@ -109,6 +111,8 @@ The main features included are:
    (l10n_it_edi.wizard_export_fatturapa).
 -  Makes the date filter used in the wizard based on Invoice Date
    (invoice_date) instead of Accounting Date (date).
+
+5. If the partner of an e-invoice does not exist, it is created.
 
 <https://www.fatturapa.gov.it>
 
@@ -215,6 +219,9 @@ Contributors
 
 -  Giuseppe Borruso - Dinamiche Aziendali srl
    <gborruso@dinamicheaziendali.it>
+-  `Aion Tech <https://aiontech.company/>`__:
+
+   -  Simone Rubino <simone.rubino@aion-tech.it>
 
 Maintainers
 -----------
