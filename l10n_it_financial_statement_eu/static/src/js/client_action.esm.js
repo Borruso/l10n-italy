@@ -1,12 +1,11 @@
-/** @odoo-module **/
 import {ReportAction} from "@web/webclient/actions/reports/report_action";
-import {patch} from "web.utils";
+import {patch} from "@web/core/utils/patch";
 
 const MODULE_NAME = "l10n_it_financial_statement_eu";
 
-patch(ReportAction.prototype, "l10n_it_financial_statement_eu.ReportAction", {
+patch(ReportAction.prototype, {
     setup() {
-        this._super.apply(this, arguments);
+        super.setup();
         this.isFinancialStatementEU = this.props.report_name.startsWith(
             `${MODULE_NAME}.`
         );
