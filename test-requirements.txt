@@ -1,0 +1,2 @@
+# https://github.com/OCA/l10n-italy/pull/4374
+odoo-addon-l10n_it_edi_stamp @ git+https://github.com/OCA/l10n-italy.git@refs/pull/4374/head#subdirectory=l10n_it_edi_stamp
