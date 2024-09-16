@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+  ~ Copyright 2024 Simone Rubino - Aion Tech
+  ~ License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl).
+  -->
+<odoo>
+    <record id="res_partner_form_l10n_it" model="ir.ui.view">
+        <field name="name">Add EDI extension fields to partner form view</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="l10n_it_edi.res_partner_form_l10n_it"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='l10n_it_pa_index']" position="after">
+                <field
+                        name="l10n_it_extension_eori_code"
+                        invisible="'IT' not in fiscal_country_codes or parent_id"
+                />
+            </xpath>
+        </field>
+    </record>
+</odoo>

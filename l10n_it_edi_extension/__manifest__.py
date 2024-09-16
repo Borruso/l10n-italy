@@ -16,6 +16,7 @@
     "data": [
         "data/invoice_it_template.xml",
         "views/l10n_it_view.xml",
+        "views/res_partner_views.xml",
     ],
     "installable": True,
 }
