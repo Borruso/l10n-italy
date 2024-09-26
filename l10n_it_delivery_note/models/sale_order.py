@@ -122,12 +122,10 @@ class SaleOrder(models.Model):
         invoices.update_delivery_note_lines()
 
     def _create_invoices(self, grouped=False, final=False, date=None):
-        invoice_ids = super()._create_invoices(grouped=grouped, final=final, date=date)
-
-        self._assign_delivery_notes_invoices(invoice_ids.ids)
-        self._generate_delivery_note_lines(invoice_ids.ids)
-
-        return invoice_ids
+        if self.delivery_note_ids:
+            self.delivery_note_ids.action_invoice(invoice_method="service", final=final)
+            return self.invoice_ids.ids
+        return super()._create_invoices(grouped=grouped, final=final, date=date)
 
     def goto_delivery_notes(self, **kwargs):
         delivery_notes = self.mapped("delivery_note_ids")
