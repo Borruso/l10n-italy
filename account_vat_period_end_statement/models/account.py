@@ -12,6 +12,10 @@ from odoo.exceptions import UserError
 from odoo.tools import float_is_zero
 from odoo.tools.translate import _
 
+# VAT settlement according to the regulations,
+# which establish a maximum debt threshold of 100 euros.
+MAX_RESIDUAL = 100
+
 
 class AccountVatPeriodEndStatement(models.Model):
     def _compute_authority_vat_amount(self):
@@ -614,7 +618,7 @@ class AccountVatPeriodEndStatement(models.Model):
             if prev_statements and not statement.annual:
                 prev_statement = prev_statements[0]
                 if (
-                    prev_statement.residual > 0
+                    1 <= prev_statement.residual <= MAX_RESIDUAL
                     and prev_statement.authority_vat_amount > 0
                 ):
                     statement.write(
