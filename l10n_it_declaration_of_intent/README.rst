@@ -51,11 +51,11 @@ Creare:
 
 2. una posizione fiscale per le dichiarazioni d'intento, avente:
 
-   - il flag Valida per dichiarazione d'intento attivato,
+   -  il flag Valida per dichiarazione d'intento attivato,
 
-   - | una mappatura delle imposte opportuna.
-     | Ad esempio tra "IVA al 22% (debito) (Vendita)" e "Non imponibile
-       art.8c Lettera intento".
+   -  | una mappatura delle imposte opportuna.
+      | Ad esempio tra "IVA al 22% (debito) (Vendita)" e "Non imponibile
+        art.8c Lettera intento".
 
 In Impostazioni > Utenti e aziende, selezionare un'azienda e, nella
 scheda Dichiarazioni d'intento, definire un plafond annuale.
@@ -103,18 +103,18 @@ Authors
 Contributors
 ------------
 
-- Francesco Apruzzese <francescoapruzzese@openforce.it>
-- Sergio Corato <info@efatto.it>
-- Glauco Prina <gprina@linkeurope.it>
-- Lorenzo Battistini <lb@takobi.online>
-- Lara Baggio <lbaggio@linkeurope.it>
-- Simone Rubino <simone.rubino@agilebg.com>
-- Arcadio Pinto <pinto.a@stesi.eu>
-- Alex Comba <alex.comba@agilebg.com>
-- Michele Rusticucci <michele.rusticucci@agilebg.com>
-- `Aion Tech <https://aiontech.company/>`__:
+-  Francesco Apruzzese <francescoapruzzese@openforce.it>
+-  Sergio Corato <info@efatto.it>
+-  Glauco Prina <gprina@linkeurope.it>
+-  Lorenzo Battistini <lb@takobi.online>
+-  Lara Baggio <lbaggio@linkeurope.it>
+-  Simone Rubino <simone.rubino@agilebg.com>
+-  Arcadio Pinto <pinto.a@stesi.eu>
+-  Alex Comba <alex.comba@agilebg.com>
+-  Michele Rusticucci <michele.rusticucci@agilebg.com>
+-  `Aion Tech <https://aiontech.company/>`__:
 
-  - Simone Rubino <simone.rubino@aion-tech.it>
+   -  Simone Rubino <simone.rubino@aion-tech.it>
 
 Maintainers
 -----------
@@ -128,6 +128,17 @@ This module is maintained by the OCA.
 OCA, or the Odoo Community Association, is a nonprofit organization whose
 mission is to support the collaborative development of Odoo features and
 promote its widespread use.
+
+.. |maintainer-MarcoCalcagni| image:: https://github.com/MarcoCalcagni.png?size=40px
+    :target: https://github.com/MarcoCalcagni
+    :alt: MarcoCalcagni
+.. |maintainer-Borruso| image:: https://github.com/Borruso.png?size=40px
+    :target: https://github.com/Borruso
+    :alt: Borruso
+
+Current `maintainers <https://odoo-community.org/page/maintainer-role>`__:
+
+|maintainer-MarcoCalcagni| |maintainer-Borruso| 
 
 This module is part of the `OCA/l10n-italy <https://github.com/OCA/l10n-italy/tree/16.0/l10n_it_declaration_of_intent>`_ project on GitHub.
 
