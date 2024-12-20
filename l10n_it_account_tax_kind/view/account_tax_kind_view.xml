@@ -1,6 +1,5 @@
 <?xml version="1.0" ?>
 <odoo>
-
     <record id="view_account_tax_kind_tree" model="ir.ui.view">
         <field name="name">account.tax.kind.tree</field>
         <field name="model">account.tax.kind</field>
@@ -41,5 +40,4 @@
         groups="account.group_account_manager"
         sequence="40"
     />
-
 </odoo>
