@@ -8,7 +8,7 @@
 
 {
     "name": "ITA - Natura delle aliquote IVA",
-    "version": "16.0.1.0.1",
+    "version": "18.0.1.0.0",
     "development_status": "Production/Stable",
     "category": "Localization/Italy",
     "summary": "Gestione natura delle aliquote IVA",
@@ -16,7 +16,7 @@
     "website": "https://github.com/OCA/l10n-italy",
     "license": "AGPL-3",
     "depends": [
-        "l10n_it_account",
+        "l10n_it",
     ],
     "data": [
         "view/account_tax_kind_view.xml",

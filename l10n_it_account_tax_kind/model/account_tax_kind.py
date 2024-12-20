@@ -1,4 +1,4 @@
-from odoo import fields, models
+from odoo import api, fields, models
 
 
 class AccountTaxKind(models.Model):
@@ -9,8 +9,7 @@ class AccountTaxKind(models.Model):
     code = fields.Char(size=4, required=True)
     name = fields.Char(required=True)
 
-    def name_get(self):
-        res = []
+    @api.depends("code", "name")
+    def _compute_display_name(self):
         for tax_kind in self:
-            res.append((tax_kind.id, f"[{tax_kind.code}] {tax_kind.name}"))
-        return res
+            tax_kind.display_name = f"[{tax_kind.code}] {tax_kind.name}"
