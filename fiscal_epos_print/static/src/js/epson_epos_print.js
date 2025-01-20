@@ -639,10 +639,7 @@ odoo.define("fiscal_epos_print.epson_epos_print", function (require) {
                             xml += self.printRecItem({
                                 description: l.product_name,
                                 quantity: l.quantity,
-                                unitPrice: round_pr(
-                                    l.full_price,
-                                    self.sender.env.pos.currency.rounding
-                                ),
+                                unitPrice: round_pr(l.full_price, 0.001),
                                 department: l.tax_department.code,
                                 operator: fiscal_operator,
                             });
@@ -653,7 +650,7 @@ odoo.define("fiscal_epos_print.epson_epos_print", function (require) {
                                         _t("Discount") + " " + l.discount + "%",
                                     amount: round_pr(
                                         l.quantity * l.full_price - l.price_display,
-                                        self.sender.env.pos.currency.rounding
+                                        0.001
                                     ),
                                     operator: fiscal_operator,
                                 });
@@ -663,10 +660,7 @@ odoo.define("fiscal_epos_print.epson_epos_print", function (require) {
                         xml += self.printRecRefund({
                             description: _t("Refund: ") + l.product_name,
                             quantity: l.quantity * -1.0,
-                            unitPrice: round_pr(
-                                l.price,
-                                self.sender.env.pos.currency.rounding
-                            ),
+                            unitPrice: l.price,
                             department: l.tax_department.code,
                             operator: fiscal_operator,
                         });
@@ -675,10 +669,7 @@ odoo.define("fiscal_epos_print.epson_epos_print", function (require) {
                         // xml += self.printRecItem({
                         //     description: _t("Refund cash"),
                         //     quantity: l.quantity,
-                        //     unitPrice: round_pr(
-                        //         l.price,
-                        //         self.sender.env.pos.currency.rounding
-                        //     ),
+                        //     unitPrice: round_pr(l.price, 0.001),
                         //     department: l.tax_department.code,
                         //     operator: fiscal_operator,
                         // });
@@ -688,7 +679,7 @@ odoo.define("fiscal_epos_print.epson_epos_print", function (require) {
                         adjustmentType: 3,
                         description: l.product_name,
                         department: l.tax_department.code,
-                        amount: -l.price,
+                        amount: round_pr(-l.price, 0.001),
                         operator: fiscal_operator,
                     });
                 }
