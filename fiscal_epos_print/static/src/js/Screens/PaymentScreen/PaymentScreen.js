@@ -25,7 +25,11 @@ odoo.define("fiscal_epos_print.PaymentScreen", function (require) {
             }
 
             async sendToFP90Printer(order) {
-                if (this.env.pos.config.printer_ip && !order.is_to_invoice()) {
+                if (
+                    this.env.pos.config.printer_ip &&
+                    !order.is_to_invoice() &&
+                    order.orderlines.length > 0
+                ) {
                     // TODO self.chrome does not exists
                     // this.chrome.loading_show();
                     // this.chrome.loading_message(_t('Connecting to the fiscal printer'));
