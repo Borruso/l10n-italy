@@ -86,7 +86,7 @@
 
     <template id="template_asset_journal_category_data">
         <div name="category_name">
-            <h2 style="text-align: center;">
+            <h3 style="text-align: center;">
                 <t
                     t-set="domain"
                     t-value="[('id', 'in', category_section.report_asset_ids.mapped('asset_id').ids)]"
@@ -101,19 +101,19 @@
                         <t t-out="category_section.category_name" />
                     </a>
                 </span>
-            </h2>
+            </h3>
         </div>
     </template>
 
     <template id="template_asset_journal_category_totals">
         <div name="category_name">
-            <h2 style="text-align: centerNel;">
+            <h5 style="text-align: centerNel;">
                 <span style="margin: 5px; font-weight: bold;">
                     <span>Totals for: </span><span
                         t-field="category_section.category_name"
                     />
                 </span>
-            </h2>
+            </h5>
         </div>
         <div>
             <t t-set="totals_sections" t-value="category_section.report_total_ids" />
@@ -124,14 +124,12 @@
     <template id="template_asset_journal_asset">
         <t t-set="asset_counter" t-value="1" />
         <t t-foreach="category_section.report_asset_ids" t-as="asset_section">
+            <t t-call="l10n_it_asset_management.template_asset_journal_asset_title" />
             <div class="act_as_table" style="width: 100%">
                 <div
                     class="act_as_thead"
                     style="width: 100%; font-size: 14px; margin: 3px;"
                 >
-                    <t
-                        t-call="l10n_it_asset_management.template_asset_journal_asset_title"
-                    />
                     <t
                         t-call="l10n_it_asset_management.template_asset_journal_asset_table_header"
                     />
@@ -190,7 +188,7 @@
 
     <template id="template_asset_journal_asset_title">
         <div name="asset_name">
-            <h2 style="text-align: left;">
+            <h5 style="text-align: left;">
                 <t t-set="active_id" t-value="asset_section.asset_id.id" />
                 <span style="margin: 5px;">
                     <span>Asset: </span>
@@ -203,7 +201,7 @@
                         <t t-out="asset_section.asset_name" />
                     </a>
                 </span>
-            </h2>
+            </h5>
         </div>
     </template>
 
@@ -818,7 +816,9 @@
                         t-att-res-model="res_model"
                         class="o_account_financial_reports_web_action_multi"
                     >
-                        <t t-out="''" />
+                        <t
+                            t-raw="accounting_doc.format_amount(accounting_doc.amount_currency)"
+                        />
                     </a>
                 </span>
             </div>
