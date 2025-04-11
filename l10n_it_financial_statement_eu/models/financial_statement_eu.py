@@ -109,21 +109,30 @@ class FinancialStatementEU(models.Model):
         credit_fse_id,
         force_update,
     ):
-        acc_ids = self.env["account.account"].search([("code", "=ilike", acc_code)])
-        for acc_id in acc_ids:
-            if (
-                (not acc_id.financial_statement_eu_debit_id)
-                and (not acc_id.financial_statement_eu_credit_id)
-            ) or force_update:
-                if (acc_id.financial_statement_eu_debit_id.id != debit_fse_id) or (
-                    acc_id.financial_statement_eu_credit_id.id != credit_fse_id
-                ):
-                    acc_id.write(
-                        {
-                            "financial_statement_eu_debit_id": debit_fse_id,
-                            "financial_statement_eu_credit_id": credit_fse_id,
-                        }
-                    )
+        for company in self.env["res.company"].search([]):
+            acc_ids = (
+                self.env["account.account"]
+                .with_company(company)
+                .search(
+                    [
+                        ("code", "=ilike", acc_code),
+                    ]
+                )
+            )
+            for acc_id in acc_ids:
+                if (
+                    (not acc_id.financial_statement_eu_debit_id)
+                    and (not acc_id.financial_statement_eu_credit_id)
+                ) or force_update:
+                    if (acc_id.financial_statement_eu_debit_id.id != debit_fse_id) or (
+                        acc_id.financial_statement_eu_credit_id.id != credit_fse_id
+                    ):
+                        acc_id.write(
+                            {
+                                "financial_statement_eu_debit_id": debit_fse_id,
+                                "financial_statement_eu_credit_id": credit_fse_id,
+                            }
+                        )
 
     @api.model
     def financial_statement_eu_account_assoc_code(

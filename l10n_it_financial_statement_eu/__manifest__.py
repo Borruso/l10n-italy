@@ -7,7 +7,7 @@
     "name": "ITA - Bilancio UE con XBRL",
     "version": "18.0.1.0.0",
     "category": "Localization/Italy",
-    "development_status": "Alpha",
+    "development_status": "Beta",
     "license": "AGPL-3",
     "author": "MKT Srl, Odoo Community Association (OCA)",
     "website": "https://github.com/OCA/l10n-italy",
