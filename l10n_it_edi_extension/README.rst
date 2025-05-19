@@ -178,6 +178,9 @@ Le funzionalità principali incluse sono:
    dati dei comuni italiani reperibili dal sito dell'AdE
    http://www.agenziaentrate.gov.it/wps/content/Nsilib/Nsi/Strumenti/Codici+attivita+e+tributo/Codici+territorio/Comuni+italia+esteri
 
+5. Importazione di una fattura elettronica senza righe, con una riga per
+   ogni aliquota, oppure con tutte le righe (default).
+
 <https://www.fatturapa.gov.it>
 
 **English**
@@ -326,6 +329,9 @@ The main features included are:
    municipality data available from the Revenue Agency website
    http://www.agenziaentrate.gov.it/wps/content/Nsilib/Nsi/Strumenti/Codici+attivita+e+tributo/Codici+territorio/Comuni+italia+esteri
 
+5. Importing e-bills with no lines, one line for each tax rate, or all
+   lines (default).
+
 <https://www.fatturapa.gov.it>
 
 **Table of contents**
@@ -384,6 +390,12 @@ necessario che siano installati e configurati i moduli dipendenti:
       l'invio diretto tramite Odoo (se supportato dalla configurazione
       generale).
 
+In Fatturazione > Configurazione > Impostazioni, valorizzare "Livello di
+dettaglio importazione e-fatture" per importare le fatture elettroniche
+senza righe, con una riga per ogni aliquota, oppure con tutte le righe
+(default). Questa configurazione può essere sovrascritta dal campo
+"Livello di dettaglio importazione e-fatture" in ogni fornitore.
+
 **English**
 
 The only available configurations are:
@@ -427,6 +439,11 @@ modules must be installed and configured:
       numbering.
    -  Optional SDI credentials configuration if direct sending through
       Odoo is used (if supported by general configuration).
+
+In Invoicing > Configuration > Settings, fill "E-bills import detail
+level" to import e-bills with no lines, one line for each tax rate, or
+all lines (default). This setting can be overridden using the "E-bills
+import detail level" in each supplier.
 
 Bug Tracker
 ===========

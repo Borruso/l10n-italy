@@ -76,6 +76,7 @@ Le funzionalità principali incluse sono:
 
 4. Aggiunge di un wizard per calcolare i codici fiscali attingendo dai dati dei comuni italiani reperibili dal sito dell'AdE http://www.agenziaentrate.gov.it/wps/content/Nsilib/Nsi/Strumenti/Codici+attivita+e+tributo/Codici+territorio/Comuni+italia+esteri
 
+5. Importazione di una fattura elettronica senza righe, con una riga per ogni aliquota, oppure con tutte le righe (default).
 
 \<<https://www.fatturapa.gov.it>\>
 
@@ -158,5 +159,6 @@ The main features included are:
 
 4. Adds a wizard to calculate fiscal codes drawing from Italian municipality data available from the Revenue Agency website http://www.agenziaentrate.gov.it/wps/content/Nsilib/Nsi/Strumenti/Codici+attivita+e+tributo/Codici+territorio/Comuni+italia+esteri
 
+5. Importing e-bills with no lines, one line for each tax rate, or all lines (default).
 
 \<<https://www.fatturapa.gov.it>\>
