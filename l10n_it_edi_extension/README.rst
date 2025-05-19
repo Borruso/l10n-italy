@@ -72,7 +72,11 @@ Le funzionalità principali incluse sono:
 
 5. Se una fattura elettronica contiene diverse fatture, tutte le fatture
    vengono create.
+
 6. Se il partner di una fattura elettronica non esiste, viene creato.
+
+7. Importazione di una fattura elettronica senza righe, con una riga per
+   ogni aliquota, oppure con tutte le righe (default).
 
 <https://www.fatturapa.gov.it>
 
@@ -117,6 +121,8 @@ The main features included are:
 5. If an e-invoice contains multiple invoices, all the corresponding
    invoices are created.
 6. If the partner of an e-invoice does not exist, it is created.
+7. Importing e-bills with no lines, one line for each tax rate, or all
+   lines (default).
 
 <https://www.fatturapa.gov.it>
 
@@ -166,6 +172,12 @@ automaticamente nell'interfaccia esistente:
 -  Il filtro data nel wizard di esportazione userà automaticamente la
    data fattura.
 
+In Fatturazione > Configurazione > Impostazioni, valorizzare "Livello di
+dettaglio importazione e-fatture" per importare le fatture elettroniche
+senza righe, con una riga per ogni aliquota, oppure con tutte le righe
+(default). Questa configurazione può essere sovrascritta dal campo
+"Livello di dettaglio importazione e-fatture" in ogni fornitore.
+
 **English**
 
 No specific configuration is required for l10n_it_edi_extension: once
@@ -199,6 +211,11 @@ into the existing interface:
    "Actions" menu of selected invoices.
 -  The date filter in the export wizard will automatically use the
    invoice date.
+
+In Invoicing > Configuration > Settings, fill "E-bills import detail
+level" to import e-bills with no lines, one line for each tax rate, or
+all lines (default). This setting can be overridden using the "E-bills
+import detail level" in each supplier.
 
 Bug Tracker
 ===========

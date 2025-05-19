@@ -18,6 +18,9 @@ Le funzionalità aggiunte da l10n_it_edi_extension si integrano automaticamente 
   - L'opzione per impostare la data a fine mese DDT sarà disponibile nel menu "Azioni" delle fatture selezionate.
   - Il filtro data nel wizard di esportazione userà automaticamente la data fattura.
 
+In Fatturazione > Configurazione > Impostazioni, valorizzare "Livello di dettaglio importazione e-fatture" per importare le fatture elettroniche senza righe, con una riga per ogni aliquota, oppure con tutte le righe (default).
+Questa configurazione può essere sovrascritta dal campo "Livello di dettaglio importazione e-fatture" in ogni fornitore.
+
 **English**
 
 No specific configuration is required for l10n_it_edi_extension: once installed, its features are active.
@@ -37,3 +40,6 @@ The features added by l10n_it_edi_extension are automatically integrated into th
   - The "Preview XML" button will appear in the invoice form.
   - The option to set the DDT end-of-month date will be available in the "Actions" menu of selected invoices.
   - The date filter in the export wizard will automatically use the invoice date.
+
+In Invoicing > Configuration > Settings, fill "E-bills import detail level" to import e-bills with no lines, one line for each tax rate, or all lines (default).
+This setting can be overridden using the "E-bills import detail level" in each supplier.
