@@ -72,7 +72,11 @@ Le funzionalità principali incluse sono:
 
 5. Se una fattura elettronica contiene diverse fatture, tutte le fatture
    vengono create.
+
 6. Se il partner di una fattura elettronica non esiste, viene creato.
+
+7. Il campo "Termini e condizioni" viene scritto nel nodo "Causale"
+   della fattura elettronica.
 
 <https://www.fatturapa.gov.it>
 
@@ -116,7 +120,11 @@ The main features included are:
 
 5. If an e-invoice contains multiple invoices, all the corresponding
    invoices are created.
+
 6. If the partner of an e-invoice does not exist, it is created.
+
+7. The field "Terms and Conditions" is written in the node "Causale" of
+   the electronic invoice.
 
 <https://www.fatturapa.gov.it>
 
