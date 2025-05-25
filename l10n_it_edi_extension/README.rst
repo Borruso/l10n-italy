@@ -181,6 +181,9 @@ Le funzionalità principali incluse sono:
 5. Importazione di una fattura elettronica senza righe, con una riga per
    ogni aliquota, oppure con tutte le righe (default).
 
+6. Il campo "Termini e condizioni" viene scritto nel nodo "Causale"
+   della fattura elettronica.
+
 <https://www.fatturapa.gov.it>
 
 **English**
@@ -331,6 +334,9 @@ The main features included are:
 
 5. Importing e-bills with no lines, one line for each tax rate, or all
    lines (default).
+
+6. The field "Terms and Conditions" is written in the node "Causale" of
+   the electronic invoice.
 
 <https://www.fatturapa.gov.it>
 
