@@ -926,11 +926,16 @@ class StockDeliveryNote(models.Model):
                 except AccessError:
                     return self.env["account.move"]
 
+            # Filter delivery notes related to the sale orders
+            filter_delivery_notes = delivery_note_ids.filtered(
+                lambda dn, so=sale_orders: dn.sale_ids.ids in so.ids
+            )
+
             # Prepare invoice
-            invoice_vals = delivery_note_ids._prepare_invoice(sale_orders, from_so)
+            invoice_vals = filter_delivery_notes._prepare_invoice(sale_orders, from_so)
 
             # Prepare invoice lines
-            vals_list = delivery_note_ids._prepare_invoice_lines(
+            vals_list = filter_delivery_notes._prepare_invoice_lines(
                 sale_orders, from_so, invoice_method, final
             )
 
@@ -944,7 +949,9 @@ class StockDeliveryNote(models.Model):
             )
 
             # Update statuses
-            delivery_note_ids._update_invoice_statuses(invoice_id, sale_orders, from_so)
+            filter_delivery_notes._update_invoice_statuses(
+                invoice_id, sale_orders, from_so
+            )
 
             # Some moves might actually be refunds: convert them if the total amount is
             # negative.
