@@ -343,77 +343,6 @@ def _l10n_it_fatturapa_post_migration_payment_data(env):
             move.sudo().message_post(body=message)
 
 
-def _l10n_it_fatturapa_post_migration_related_document_type(env):
-    env.cr.execute("""
-        SELECT invoice_id, invoice_line_id, type, name, date, code, cig, cup
-        FROM fatturapa_related_document_type
-        WHERE invoice_id IS NOT NULL OR invoice_line_id IS NOT NULL
-    """)
-    rows = env.cr.fetchall()
-    invoice_map = {}
-    for row in rows:
-        invoice_id, invoice_line_id, document_type, name, date, code, cig, cup = row
-        move_id = (
-            invoice_id or env["account.move.line"].browse(invoice_line_id).move_id.id
-        )
-        if move_id:
-            invoice_map.setdefault(move_id, []).append(
-                (document_type, name, date, code, cig, cup)
-            )
-
-    moves = env["account.move"].browse(invoice_map.keys())
-    out_moves = moves.filtered(lambda m: m.is_sale_document())
-    for move in out_moves:
-        for index, (document_type, name, date, code, cig, cup) in enumerate(
-            invoice_map[move.id], start=1
-        ):
-            if index == 1:
-                if document_type == "order":
-                    document_type = "purchase_order"
-                elif document_type not in ["contract", "agreement"]:
-                    document_type = ""
-                move.l10n_it_origin_document_type = document_type
-                move.l10n_it_origin_document_name = name
-                move.l10n_it_origin_document_date = date
-                move.l10n_it_cig = cig
-                move.l10n_it_cup = cup
-            else:
-                document_type_tags = Markup('<ul class="mb-0">{}</ul>').format(
-                    Markup().join(
-                        nl2br_enclose(" ".join(tag.split()), "li")
-                        for tag in [
-                            f"IdDocumento: {name}",
-                            f'Data: {date or "N/A"}',
-                            f'CodiceCommessaConvenzione: {code or "N/A"}',
-                            f'CodiceCIG: {cig or "N/A"}',
-                            f'CodiceCUP: {cup or "N/A"}',
-                        ]
-                    )
-                )
-                message = Markup("{} {}<br/>{}").format(
-                    document_type, env._("from XML file:"), document_type_tags
-                )
-                move.sudo().message_post(body=message)
-    for move in moves - out_moves:
-        for document_type, name, date, code, cig, cup in invoice_map[move.id]:
-            document_type_tags = Markup('<ul class="mb-0">{}</ul>').format(
-                Markup().join(
-                    nl2br_enclose(" ".join(tag.split()), "li")
-                    for tag in [
-                        f"IdDocumento: {name}",
-                        f'Data: {date or "N/A"}',
-                        f'CodiceCommessaConvenzione: {code or "N/A"}',
-                        f'CodiceCIG: {cig or "N/A"}',
-                        f'CodiceCUP: {cup or "N/A"}',
-                    ]
-                )
-            )
-            message = Markup("{} {}<br/>{}").format(
-                document_type, env._("from XML file:"), document_type_tags
-            )
-            move.sudo().message_post(body=message)
-
-
 def _l10n_it_fatturapa_post_migration_rename_fields(env):
     RENAMED_MODELS = [
         ("fatturapa.activity.progress", "l10n_it_edi.activity_progress"),
@@ -797,7 +726,6 @@ def _l10n_it_fatturapa_post_migration(env):
     _l10n_it_fatturapa_post_migration_delivery_data(env)
     _l10n_it_fatturapa_post_migration_vehicle_data(env)
     _l10n_it_fatturapa_post_migration_payment_data(env)
-    _l10n_it_fatturapa_post_migration_related_document_type(env)
     _l10n_it_fatturapa_post_migration_rename_fields(env)
 
 
@@ -1024,6 +952,10 @@ def _l10n_it_fiscalcode_post_migration(env):
     rename_fields(
         env, table, {"l10n_it_codice_fiscale": "fiscalcode"}, condition=condition
     )
+    table = "res_company"
+    rename_fields(
+        env, table, {"l10n_it_codice_fiscale": "fiscalcode"}, condition=condition
+    )
 
 
 def _l10n_it_ipa_post_migration(env):
@@ -1054,6 +986,14 @@ def _l10n_it_rea_post_migration(env):
             "l10n_it_eco_index_liquidation_state": "rea_liquidation_state",
         },
         condition,
+    )
+    openupgrade.logged_query(
+        env.cr,
+        """
+        UPDATE res_company
+        SET l10n_it_has_eco_index = 't'
+        WHERE l10n_it_eco_index_number IS NOT NULL
+        """,
     )
 
 
