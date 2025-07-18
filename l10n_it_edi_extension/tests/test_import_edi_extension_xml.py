@@ -108,7 +108,7 @@ class TestFatturaPAXMLValidation(TestItEdi):
         self.assertEqual(move.partner_id.street, "VIALE ROMA 543")
         self.assertEqual(move.partner_id.state_id.code, "SS")
         self.assertEqual(move.partner_id.country_id.code, "IT")
-        self.assertEqual(move.partner_id.vat, "IT02780790107")
+        self.assertEqual(move.partner_id.vat, "02780790107")
         self.assertEqual(
             move.l10n_it_edi_tax_representative_id.name, "Rappresentante fiscale"
         )
