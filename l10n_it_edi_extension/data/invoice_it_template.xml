@@ -4,6 +4,14 @@
         id="account_invoice_line_it_FatturaPA_inherit"
         inherit_id="l10n_it_edi.account_invoice_line_it_FatturaPA"
     >
+        <xpath expr="//DettaglioLinee/PrezzoUnitario" position="before">
+            <DataInizioPeriodo 
+                t-if="it_values.get('period_start_date')"
+                t-out="format_date(it_values['period_start_date'])"/>
+            <DataFinePeriodo
+                t-if="it_values.get('period_end_date')"
+                t-out="format_date(it_values['period_end_date'])"/>
+        </xpath>
         <xpath expr="//DettaglioLinee/Natura" position="after">
             <RiferimentoAmministrazione
                 t-if="it_values['admin_ref']"

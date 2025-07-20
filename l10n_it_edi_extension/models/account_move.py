@@ -252,6 +252,8 @@ class AccountMoveInherit(models.Model):
             base_line["it_values"].update(
                 {
                     "admin_ref": line.l10n_it_edi_admin_ref or None,
+                    "period_start_date": line.deferred_start_date or None,
+                    "period_end_date": line.deferred_end_date or None,
                 }
             )
         return res
