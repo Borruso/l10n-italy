@@ -614,7 +614,6 @@ class AccountMoveInherit(models.Model):
                 "tax_amount": get_float(element, ".//AliquotaIVA"),
                 "wt_amount": get_text(element, ".//Ritenuta"),
                 "tax_kind": get_text(element, ".//Natura").upper(),
-                "admin_ref": get_text(element, ".//RiferimentoAmministrazione"),
                 "invoice_line_id": move_line.id,
                 "invoice_id": move_line.move_id.id,
             }
