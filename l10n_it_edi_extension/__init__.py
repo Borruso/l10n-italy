@@ -101,6 +101,316 @@ def add_field_if_not_exists(env, table, field_name, field_type, module):
         )
 
 
+def _l10n_it_fatturapa_pre_migration(env):
+    RENAMED_FIELDS = [
+        [
+            (
+                "account.move",
+                "protocol_number",
+            ),
+            (
+                "account.move",
+                "l10n_it_edi_protocol_number",
+            ),
+        ],
+        [
+            (
+                "account.move",
+                "tax_representative_id",
+            ),
+            (
+                "account.move",
+                "l10n_it_edi_tax_representative_id",
+            ),
+        ],
+        [
+            (
+                "account.move",
+                "intermediary",
+            ),
+            (
+                "account.move",
+                "l10n_it_edi_intermediary_id",
+            ),
+        ],
+        [
+            (
+                "account.move",
+                "sender",
+            ),
+            (
+                "account.move",
+                "l10n_it_edi_sender",
+            ),
+        ],
+        [
+            (
+                "account.move",
+                "fatturapa_summary_ids",
+            ),
+            (
+                "account.move",
+                "l10n_it_edi_summary_ids",
+            ),
+        ],
+        [
+            (
+                "account.move",
+                "activity_progress_ids",
+            ),
+            (
+                "account.move",
+                "l10n_it_edi_activity_progress_ids",
+            ),
+        ],
+        [
+            (
+                "account.move",
+                "efatt_rounding",
+            ),
+            (
+                "account.move",
+                "l10n_it_edi_rounding",
+            ),
+        ],
+        [
+            (
+                "account.move",
+                "art73",
+            ),
+            (
+                "account.move",
+                "l10n_edi_it_art73",
+            ),
+        ],
+        [
+            (
+                "account.move",
+                "related_invoice_code",
+            ),
+            (
+                "account.move",
+                "l10n_it_edi_related_invoice_code",
+            ),
+        ],
+        [
+            (
+                "account.move",
+                "related_invoice_code",
+            ),
+            (
+                "account.move",
+                "l10n_it_edi_related_invoice_code",
+            ),
+        ],
+        [
+            (
+                "account.move",
+                "related_invoice_date",
+            ),
+            (
+                "account.move",
+                "l10n_it_edi_related_invoice_date",
+            ),
+        ],
+        [
+            (
+                "account.move",
+                "efatt_stabile_organizzazione_indirizzo",
+            ),
+            (
+                "account.move",
+                "l10n_it_edi_stabile_organizzazione_indirizzo",
+            ),
+        ],
+        [
+            (
+                "account.move",
+                "efatt_stabile_organizzazione_civico",
+            ),
+            (
+                "account.move",
+                "l10n_it_edi_stabile_organizzazione_civico",
+            ),
+        ],
+        [
+            (
+                "account.move",
+                "efatt_stabile_organizzazione_cap",
+            ),
+            (
+                "account.move",
+                "l10n_it_edi_stabile_organizzazione_cap",
+            ),
+        ],
+        [
+            (
+                "account.move",
+                "efatt_stabile_organizzazione_comune",
+            ),
+            (
+                "account.move",
+                "l10n_it_edi_stabile_organizzazione_comune",
+            ),
+        ],
+        [
+            (
+                "account.move",
+                "efatt_stabile_organizzazione_provincia",
+            ),
+            (
+                "account.move",
+                "l10n_it_edi_stabile_organizzazione_provincia",
+            ),
+        ],
+        [
+            (
+                "account.move",
+                "efatt_stabile_organizzazione_nazione",
+            ),
+            (
+                "account.move",
+                "l10n_it_edi_stabile_organizzazione_nazione",
+            ),
+        ],
+        [
+            (
+                "account.move",
+                "efatt_stabile_organizzazione_nazione",
+            ),
+            (
+                "account.move",
+                "l10n_it_edi_stabile_organizzazione_nazione",
+            ),
+        ],
+        [
+            (
+                "account.move.line",
+                "admin_ref",
+            ),
+            (
+                "account.move.line",
+                "l10n_it_edi_admin_ref",
+            ),
+        ],
+        [
+            (
+                "res.partner",
+                "eori_code",
+            ),
+            (
+                "res.partner",
+                "l10n_edi_it_eori_code",
+            ),
+        ],
+        [
+            (
+                "res.partner",
+                "electronic_invoice_no_contact_update",
+            ),
+            (
+                "res.partner",
+                "l10n_edi_it_electronic_invoice_no_contact_update",
+            ),
+        ],
+        [
+            (
+                "res.partner",
+                "register",
+            ),
+            (
+                "res.partner",
+                "l10n_edi_it_register",
+            ),
+        ],
+        [
+            (
+                "res.partner",
+                "register_province",
+            ),
+            (
+                "res.partner",
+                "l10n_edi_it_register_province_id",
+            ),
+        ],
+        [
+            (
+                "res.partner",
+                "register_code",
+            ),
+            (
+                "res.partner",
+                "l10n_edi_it_register_code",
+            ),
+        ],
+        [
+            (
+                "res.partner",
+                "register_regdate",
+            ),
+            (
+                "res.partner",
+                "l10n_edi_it_register_regdate",
+            ),
+        ],
+        [
+            (
+                "res.company",
+                "fatturapa_art73",
+            ),
+            (
+                "res.company",
+                "l10n_edi_it_art73",
+            ),
+        ],
+        [
+            (
+                "res.company",
+                "fatturapa_pub_administration_ref",
+            ),
+            (
+                "res.company",
+                "l10n_edi_it_admin_ref",
+            ),
+        ],
+        [
+            (
+                "res.company",
+                "fatturapa_sender_partner",
+            ),
+            (
+                "res.company",
+                "l10n_edi_it_sender_partner",
+            ),
+        ],
+        [
+            (
+                "res.company",
+                "fatturapa_stabile_organizzazione",
+            ),
+            (
+                "res.company",
+                "l10n_edi_it_stable_organization",
+            ),
+        ],
+    ]
+    field_spec = []
+    for renamed_field in RENAMED_FIELDS:
+        (old_model, old_field), (new_model, new_field) = renamed_field
+        field_spec.append(
+            (
+                old_model,
+                new_model.replace(".", "_"),
+                old_field,
+                new_field,
+            )
+        )
+    openupgrade.rename_fields(
+        env,
+        field_spec,
+    )
+
+
 def _l10n_it_fatturapa_post_migration_related_ddt(env):
     env.cr.execute("""
         SELECT invoice_id, invoice_line_id, name, date
@@ -343,343 +653,6 @@ def _l10n_it_fatturapa_post_migration_payment_data(env):
             move.sudo().message_post(body=message)
 
 
-def _l10n_it_fatturapa_post_migration_rename_fields(env):
-    RENAMED_MODELS = [
-        ("fatturapa.activity.progress", "l10n_it_edi.activity_progress"),
-        ("fatturapa.summary.data", "l10n_it_edi.summary_data"),
-    ]
-    RENAMED_TABLES = [
-        ("fatturapa_activity_progress", "l10n_it_edi_activity_progress"),
-        ("fatturapa_summary_data", "l10n_it_edi_summary_data"),
-    ]
-    RENAMED_FIELDS = [
-        [
-            (
-                "l10n_it_edi.activity_progress",
-                "fatturapa_activity_progress",
-            ),
-            (
-                "l10n_it_edi.activity_progress",
-                "activity_progress",
-            ),
-        ],
-        [
-            (
-                "account.move",
-                "protocol_number",
-            ),
-            (
-                "account.move",
-                "l10n_it_edi_protocol_number",
-            ),
-        ],
-        [
-            (
-                "account.move",
-                "tax_representative_id",
-            ),
-            (
-                "account.move",
-                "l10n_it_edi_tax_representative_id",
-            ),
-        ],
-        [
-            (
-                "account.move",
-                "intermediary",
-            ),
-            (
-                "account.move",
-                "l10n_it_edi_intermediary_id",
-            ),
-        ],
-        [
-            (
-                "account.move",
-                "sender",
-            ),
-            (
-                "account.move",
-                "l10n_it_edi_sender",
-            ),
-        ],
-        [
-            (
-                "account.move",
-                "fatturapa_summary_ids",
-            ),
-            (
-                "account.move",
-                "l10n_it_edi_summary_ids",
-            ),
-        ],
-        [
-            (
-                "account.move",
-                "activity_progress_ids",
-            ),
-            (
-                "account.move",
-                "l10n_it_edi_activity_progress_ids",
-            ),
-        ],
-        [
-            (
-                "account.move",
-                "efatt_rounding",
-            ),
-            (
-                "account.move",
-                "l10n_it_edi_rounding",
-            ),
-        ],
-        [
-            (
-                "account.move",
-                "art73",
-            ),
-            (
-                "account.move",
-                "l10n_edi_it_art73",
-            ),
-        ],
-        [
-            (
-                "account.move",
-                "related_invoice_code",
-            ),
-            (
-                "account.move",
-                "l10n_it_edi_related_invoice_code",
-            ),
-        ],
-        [
-            (
-                "account.move",
-                "related_invoice_code",
-            ),
-            (
-                "account.move",
-                "l10n_it_edi_related_invoice_code",
-            ),
-        ],
-        [
-            (
-                "account.move",
-                "related_invoice_date",
-            ),
-            (
-                "account.move",
-                "l10n_it_edi_related_invoice_date",
-            ),
-        ],
-        [
-            (
-                "account.move",
-                "efatt_stabile_organizzazione_indirizzo",
-            ),
-            (
-                "account.move",
-                "l10n_it_edi_stabile_organizzazione_indirizzo",
-            ),
-        ],
-        [
-            (
-                "account.move",
-                "efatt_stabile_organizzazione_civico",
-            ),
-            (
-                "account.move",
-                "l10n_it_edi_stabile_organizzazione_civico",
-            ),
-        ],
-        [
-            (
-                "account.move",
-                "efatt_stabile_organizzazione_cap",
-            ),
-            (
-                "account.move",
-                "l10n_it_edi_stabile_organizzazione_cap",
-            ),
-        ],
-        [
-            (
-                "account.move",
-                "efatt_stabile_organizzazione_comune",
-            ),
-            (
-                "account.move",
-                "l10n_it_edi_stabile_organizzazione_comune",
-            ),
-        ],
-        [
-            (
-                "account.move",
-                "efatt_stabile_organizzazione_provincia",
-            ),
-            (
-                "account.move",
-                "l10n_it_edi_stabile_organizzazione_provincia",
-            ),
-        ],
-        [
-            (
-                "account.move",
-                "efatt_stabile_organizzazione_nazione",
-            ),
-            (
-                "account.move",
-                "l10n_it_edi_stabile_organizzazione_nazione",
-            ),
-        ],
-        [
-            (
-                "account.move",
-                "efatt_stabile_organizzazione_nazione",
-            ),
-            (
-                "account.move",
-                "l10n_it_edi_stabile_organizzazione_nazione",
-            ),
-        ],
-        [
-            (
-                "account.move.line",
-                "admin_ref",
-            ),
-            (
-                "account.move.line",
-                "l10n_it_edi_admin_ref",
-            ),
-        ],
-        [
-            (
-                "res.partner",
-                "eori_code",
-            ),
-            (
-                "res.partner",
-                "l10n_edi_it_eori_code",
-            ),
-        ],
-        [
-            (
-                "res.partner",
-                "electronic_invoice_no_contact_update",
-            ),
-            (
-                "res.partner",
-                "l10n_edi_it_electronic_invoice_no_contact_update",
-            ),
-        ],
-        [
-            (
-                "res.partner",
-                "register",
-            ),
-            (
-                "res.partner",
-                "l10n_edi_it_register",
-            ),
-        ],
-        [
-            (
-                "res.partner",
-                "register_province",
-            ),
-            (
-                "res.partner",
-                "l10n_edi_it_register_province",
-            ),
-        ],
-        [
-            (
-                "res.partner",
-                "register_code",
-            ),
-            (
-                "res.partner",
-                "l10n_edi_it_register_code",
-            ),
-        ],
-        [
-            (
-                "res.partner",
-                "register_regdate",
-            ),
-            (
-                "res.partner",
-                "l10n_edi_it_register_regdate",
-            ),
-        ],
-        [
-            (
-                "res.company",
-                "fatturapa_art73",
-            ),
-            (
-                "res.company",
-                "l10n_edi_it_art73",
-            ),
-        ],
-        [
-            (
-                "res.company",
-                "fatturapa_pub_administration_ref",
-            ),
-            (
-                "res.company",
-                "l10n_edi_it_admin_ref",
-            ),
-        ],
-        [
-            (
-                "res.company",
-                "fatturapa_sender_partner",
-            ),
-            (
-                "res.company",
-                "l10n_edi_it_sender_partner",
-            ),
-        ],
-        [
-            (
-                "res.company",
-                "fatturapa_stabile_organizzazione",
-            ),
-            (
-                "res.company",
-                "l10n_edi_it_stable_organization",
-            ),
-        ],
-    ]
-
-    openupgrade.rename_models(
-        env.cr,
-        RENAMED_MODELS,
-    )
-    openupgrade.rename_tables(
-        env.cr,
-        RENAMED_TABLES,
-    )
-    field_spec = []
-    for renamed_field in RENAMED_FIELDS:
-        (old_model, old_field), (new_model, new_field) = renamed_field
-        field_spec.append(
-            (
-                old_model,
-                new_model.replace(".", "_"),
-                old_field,
-                new_field,
-            )
-        )
-    openupgrade.rename_fields(
-        env,
-        field_spec,
-    )
-
-
 def _l10n_it_fatturapa_post_migration(env):
     table = "res_partner"
     rename_fields(
@@ -722,87 +695,46 @@ def _l10n_it_fatturapa_post_migration(env):
     """
     openupgrade.logged_query(env.cr, query)
 
+    env.cr.execute("SELECT * FROM fatturapa_activity_progress LIMIT 1")
+    if env.cr.fetchone():
+        openupgrade.logged_query(
+            env.cr,
+            """
+            INSERT INTO
+                l10n_it_edi_activity_progress (activity_progress, invoice_id)
+            SELECT
+                fatturapa_activity_progress, invoice_id
+            FROM
+                fatturapa_activity_progress
+            """,
+        )
+
+    env.cr.execute("SELECT * FROM fatturapa_summary_data LIMIT 1")
+    if env.cr.fetchone():
+        openupgrade.logged_query(
+            env.cr,
+            """
+            INSERT INTO
+                l10n_it_edi_summary_data (
+                    tax_rate, non_taxable_nature, incidental_charges, rounding,
+                    amount_untaxed, amount_tax, payability, law_reference, invoice_id
+                )
+            SELECT
+                tax_rate, non_taxable_nature, incidental_charges, rounding,
+                amount_untaxed, amount_tax, payability, law_reference, invoice_id
+            FROM
+                fatturapa_summary_data
+            """,
+        )
+
     _l10n_it_fatturapa_post_migration_related_ddt(env)
     _l10n_it_fatturapa_post_migration_delivery_data(env)
     _l10n_it_fatturapa_post_migration_vehicle_data(env)
     _l10n_it_fatturapa_post_migration_payment_data(env)
-    _l10n_it_fatturapa_post_migration_rename_fields(env)
 
 
-def _l10n_it_fatturapa_in_migration_rename_fields(env):
-    RENAMED_MODELS = [
-        ("einvoice.line", "l10n_it_edi.line"),
-        ("fatturapa.article.code", "l10n_it_edi.article_code"),
-        ("discount.rise.price", "l10n_it_edi.discount_rise_price"),
-        ("einvoice.line.other.data", "l10n_it_edi.line_other_data"),
-    ]
-    RENAMED_TABLES = [
-        ("einvoice_line", "l10n_it_edi_line"),
-        ("fatturapa_article_code", "l10n_it_edi_article_code"),
-        ("discount_rise_price", "l10n_it_edi_discount_rise_price"),
-        ("einvoice_line_other_data", "l10n_it_edi_line_other_data"),
-    ]
+def _l10n_it_fatturapa_in_pre_migration(env):
     RENAMED_FIELDS = [
-        [
-            (
-                "l10n_it_edi.article_code",
-                "e_invoice_line_id",
-            ),
-            (
-                "l10n_it_edi.article_code",
-                "l10n_it_edi_line_id",
-            ),
-        ],
-        [
-            (
-                "l10n_it_edi.discount_rise_price",
-                "e_invoice_line_id",
-            ),
-            (
-                "l10n_it_edi.discount_rise_price",
-                "l10n_it_edi_line_id",
-            ),
-        ],
-        [
-            (
-                "l10n_it_edi.line_other_data",
-                "e_invoice_line_id",
-            ),
-            (
-                "l10n_it_edi.line_other_data",
-                "l10n_it_edi_line_id",
-            ),
-        ],
-        [
-            (
-                "l10n_it_edi.line",
-                "cod_article_ids",
-            ),
-            (
-                "l10n_it_edi.line",
-                "l10n_it_edi_article_code_ids",
-            ),
-        ],
-        [
-            (
-                "l10n_it_edi.line",
-                "discount_rise_price_ids",
-            ),
-            (
-                "l10n_it_edi.line",
-                "l10n_it_edi_discount_rise_price_ids",
-            ),
-        ],
-        [
-            (
-                "l10n_it_edi.line",
-                "other_data_ids",
-            ),
-            (
-                "l10n_it_edi.line",
-                "l10n_it_edi_line_other_data_ids",
-            ),
-        ],
         [
             (
                 "account.move",
@@ -845,14 +777,6 @@ def _l10n_it_fatturapa_in_migration_rename_fields(env):
         ],
     ]
 
-    openupgrade.rename_models(
-        env.cr,
-        RENAMED_MODELS,
-    )
-    openupgrade.rename_tables(
-        env.cr,
-        RENAMED_TABLES,
-    )
     field_spec = []
     for renamed_field in RENAMED_FIELDS:
         (old_model, old_field), (new_model, new_field) = renamed_field
@@ -875,6 +799,74 @@ def _l10n_it_fatturapa_in_post_migration(env):
     condition = "e_invoice_reference IS NOT NULL"
     rename_fields(env, table, {"ref": "e_invoice_reference"}, condition=condition)
 
+    env.cr.execute("SELECT * FROM einvoice_line LIMIT 1")
+    if env.cr.fetchone():
+        openupgrade.logged_query(
+            env.cr,
+            """
+            INSERT INTO
+                l10n_it_edi_line (
+                    invoice_id, invoice_line_id, line_number, service_type,
+                    name, qty, uom, period_start_date, period_end_date,
+                    unit_price, total_price, tax_amount, wt_amount, tax_kind
+                )
+            SELECT
+                invoice_id, invoice_line_id, line_number, service_type,
+                name, qty, uom, period_start_date, period_end_date,
+                unit_price, total_price, tax_amount, wt_amount, tax_kind
+            FROM
+                einvoice_line
+            """,
+        )
+
+    env.cr.execute("SELECT * FROM fatturapa_article_code LIMIT 1")
+    if env.cr.fetchone():
+        openupgrade.logged_query(
+            env.cr,
+            """
+            INSERT INTO
+                l10n_it_edi_article_code (name, code_val, l10n_it_edi_line_id)
+            SELECT
+                name, code_val, e_invoice_line_id
+            FROM
+                fatturapa_article_code
+            """,
+        )
+
+    env.cr.execute("SELECT * FROM discount_rise_price LIMIT 1")
+    if env.cr.fetchone():
+        openupgrade.logged_query(
+            env.cr,
+            """
+            INSERT INTO
+                l10n_it_edi_discount_rise_price (
+                    name, percentage, amount, invoice_line_id, invoice_id,
+                    l10n_it_edi_line_id
+                )
+            SELECT
+                name, percentage, amount, invoice_line_id, invoice_id,
+                e_invoice_line_id
+            FROM
+                discount_rise_price
+            """,
+        )
+
+    env.cr.execute("SELECT * FROM einvoice_line_other_data LIMIT 1")
+    if env.cr.fetchone():
+        openupgrade.logged_query(
+            env.cr,
+            """
+            INSERT INTO
+                l10n_it_edi_line_other_data (
+                    l10n_it_edi_line_id, name, text_ref, num_ref, date_ref
+                )
+            SELECT
+                e_invoice_line_id, name, text_ref, num_ref, date_ref
+            FROM
+                einvoice_line_other_data
+            """,
+        )
+
     env.cr.execute("""
         SELECT
             am.id,
@@ -891,8 +883,6 @@ def _l10n_it_fatturapa_in_post_migration(env):
         attachment.res_model = "account.move"
         attachment.res_id = move.id
         attachment.res_field = "l10n_it_edi_attachment_file"
-
-    _l10n_it_fatturapa_in_migration_rename_fields(env)
 
 
 def _l10n_it_fatturapa_out_post_migration(env):

@@ -19,6 +19,12 @@
                 </div>
             </xpath>
             <xpath
+                expr="//field[@name='invoice_line_ids']/list/field[@name='analytic_distribution']"
+                position="after"
+            >
+                <field name="l10n_it_edi_admin_ref" optional="hide" />
+            </xpath>
+            <xpath
                 expr="//page[@name='electronic_invoicing']//field[@name='l10n_it_edi_attachment_id']"
                 position="attributes"
             >
@@ -157,16 +163,6 @@
                     name="l10n_edi_it_stable_organization"
                     invisible="country_code != 'IT'"
                 />
-            </xpath>
-        </field>
-    </record>
-    <record id="account_move_form_l10n_it_lines_inherit_view" model="ir.ui.view">
-        <field name="name">account.move.form.l10n.it.lines.inherit.view</field>
-        <field name="model">account.move</field>
-        <field name="inherit_id" ref="account.view_move_form"/>
-        <field name="arch" type="xml">
-            <xpath expr="//field[@name='invoice_line_ids']//field[@name='product_id']" position="after">
-                <field name="l10n_it_edi_admin_ref" optional="hidden"/>
             </xpath>
         </field>
     </record>

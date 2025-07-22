@@ -1,53 +1,12 @@
 # Copyright 2025 Giuseppe Borruso - Dinamiche Aziendali srl
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl.html).
 
-
-from datetime import datetime
-
-from odoo import _, api, fields, models
+from odoo import api, fields, models
 from odoo.exceptions import UserError
 from odoo.tools import float_compare, html2plaintext
 
 from odoo.addons.base.models.ir_qweb_fields import Markup
-
-# -------------------------------------------------------------------------
-# XML tool functions
-# -------------------------------------------------------------------------
-
-
-def get_text(tree, xpath, many=False):
-    texts = [el.text.strip() for el in tree.xpath(xpath) if el.text]
-    return texts if many else texts[0] if texts else ""
-
-
-def get_float(tree, xpath):
-    try:
-        return float(get_text(tree, xpath))
-    except ValueError:
-        return 0.0
-
-
-def get_date(tree, xpath):
-    """
-    Dates in FatturaPA are ISO 8601 date format,
-    pattern '[-]CCYY-MM-DD[Z|(+|-)hh:mm]'
-    """
-    dt = get_datetime(tree, xpath)
-    return dt.date() if dt else False
-
-
-def get_datetime(tree, xpath):
-    """
-    Datetimes in FatturaPA are ISO 8601 date format,
-    pattern '[-]CCYY-MM-DDThh:mm:ss[Z|(+|-)hh:mm]'
-    Python 3.7 -> 3.11 doesn't support 'Z'.
-    """
-    if datetime_str := get_text(tree, xpath):
-        try:
-            return datetime.fromisoformat(datetime_str.replace("Z", "+00:00"))
-        except (ValueError, TypeError):
-            return False
-    return False
+from odoo.addons.l10n_it_edi.models.account_move import get_date, get_float, get_text
 
 
 class AccountMoveInherit(models.Model):
@@ -282,48 +241,6 @@ class AccountMoveInherit(models.Model):
 
         return res
 
-    def _l10n_it_edi_get_tax_representative(self, body_tree):
-        if body_tree.xpath("//RappresentanteFiscale"):
-            vat = get_text(body_tree, "//RappresentanteFiscale//IdCodice")
-            codice_fiscale = get_text(
-                body_tree, "//RappresentanteFiscale//CodiceFiscale"
-            )
-            self = self.with_context(skip_create_partner=True)
-            if tax_representative := self._l10n_it_edi_search_partner(
-                self.company_id, vat, codice_fiscale, ""
-            ):
-                self.l10n_it_edi_tax_representative_id = tax_representative.id
-            else:
-                if tax_representative := self._l10n_it_edi_create_partner(
-                    body_tree, "//RappresentanteFiscale", vat, codice_fiscale
-                ):
-                    self.l10n_it_edi_tax_representative_id = tax_representative.id
-
-    def _l10n_it_edi_get_intermediary(self, body_tree):
-        if body_tree.xpath("//TerzoIntermediarioOSoggettoEmittente"):
-            vat = get_text(
-                body_tree, "//TerzoIntermediarioOSoggettoEmittente//IdCodice"
-            )
-            codice_fiscale = get_text(
-                body_tree, "//TerzoIntermediarioOSoggettoEmittente//CodiceFiscale"
-            )
-            self = self.with_context(skip_create_partner=True)
-            if intermediary := self._l10n_it_edi_search_partner(
-                self.company_id, vat, codice_fiscale, ""
-            ):
-                self.l10n_it_edi_intermediary_id = intermediary.id
-            else:
-                if intermediary := self._l10n_it_edi_create_partner(
-                    body_tree,
-                    "//TerzoIntermediarioOSoggettoEmittente",
-                    vat,
-                    codice_fiscale,
-                ):
-                    self.l10n_it_edi_intermediary_id = intermediary.id
-
-        if sender := get_text(body_tree, "//SoggettoEmittente"):
-            self.l10n_it_edi_sender = sender
-
     def _l10n_it_edi_get_extra_info(
         self, company, document_type, body_tree, incoming=True
     ):
@@ -331,8 +248,8 @@ class AccountMoveInherit(models.Model):
             company, document_type, body_tree, incoming=incoming
         )
 
-        self._l10n_it_edi_get_tax_representative(body_tree)
-        self._l10n_it_edi_get_intermediary(body_tree)
+        if sender := get_text(body_tree, "//SoggettoEmittente"):
+            self.l10n_it_edi_sender = sender
 
         if rounding := get_float(body_tree, ".//DatiGeneraliDocumento/Arrotondamento"):
             self.l10n_it_edi_rounding = rounding
@@ -341,23 +258,28 @@ class AccountMoveInherit(models.Model):
             self.l10n_edi_it_art73 = True
 
         if elements_sal := body_tree.xpath(".//DatiGenerali/DatiSAL"):
-            for element_sal in elements_sal:
-                self.env["l10n_it_edi.activity_progress"].create(
+            self.env["l10n_it_edi.activity_progress"].create(
+                [
                     {
                         "activity_progress": get_text(
                             element_sal, ".//RiferimentoFase"
                         ),
                         "invoice_id": self.id,
                     }
-                )
+                    for element_sal in elements_sal
+                ],
+            )
 
         for xpath, label in [
-            (".//DatiGenerali/DatiTrasporto", "Transport informations from XML file:"),
-            (".//DatiVeicoli", "Vehicle informations from XML file:"),
+            (
+                ".//DatiGenerali/DatiTrasporto",
+                self.env._("Transport informations from XML file:"),
+            ),
+            (".//DatiVeicoli", self.env._("Vehicle informations from XML file:")),
         ]:
             if body_tree.xpath(xpath):
                 message = Markup("<br/>").join(
-                    (self.env._(label), self._compose_info_message(body_tree, xpath))
+                    (label, self._compose_info_message(body_tree, xpath))
                 )
                 message_to_log.append(message)
 
@@ -388,8 +310,8 @@ class AccountMoveInherit(models.Model):
                 )
 
         if elements_summary := body_tree.xpath(".//DatiBeniServizi/DatiRiepilogo"):
-            for element_summary in elements_summary:
-                self.env["l10n_it_edi.summary_data"].create(
+            self.env["l10n_it_edi.summary_data"].create(
+                [
                     {
                         "tax_rate": get_float(element_summary, ".//AliquotaIVA"),
                         "non_taxable_nature": get_text(element_summary, ".//Natura"),
@@ -407,7 +329,10 @@ class AccountMoveInherit(models.Model):
                         ),
                         "invoice_id": self.id,
                     }
-                )
+                    for element_summary in elements_summary
+                ]
+            )
+            for element_summary in elements_summary:
                 self.l10n_it_edi_amount_tax += get_float(element_summary, ".//Imposta")
 
         extra_info["l10n_it_edi_ext_body_tree"] = body_tree
@@ -416,17 +341,18 @@ class AccountMoveInherit(models.Model):
     def _l10n_it_edi_create_partner(
         self, xml_tree, partner_section_xpath, vat, codice_fiscale
     ):
-        country_id = False
         is_company = bool(get_text(xml_tree, partner_section_xpath + "//Denominazione"))
         eori_code = get_text(xml_tree, partner_section_xpath + "//CodEORI")
 
         if country_code := get_text(xml_tree, partner_section_xpath + "//IdPaese"):
-            countries = self.env["res.country"].search([("code", "=", country_code)])
-            if countries:
-                country_id = fields.first(countries).id
-            else:
+            country_id = (
+                self.env["res.country"]
+                .search([("code", "=", country_code)], limit=1)
+                .id
+            )
+            if not country_id:
                 raise UserError(
-                    self.env._("Country Code %s not found in system.") % country_code
+                    self.env._("Country Code %s not found in system.", country_code)
                 )
 
         vals = {
@@ -440,15 +366,16 @@ class AccountMoveInherit(models.Model):
         if value := get_text(xml_tree, partner_section_xpath + "//Denominazione"):
             vals["name"] = value
         else:
-            vals["name"] = " ".join(
-                filter(
-                    None,
-                    [
-                        get_text(xml_tree, partner_section_xpath + "//Nome"),
-                        get_text(xml_tree, partner_section_xpath + "//Cognome"),
-                    ],
-                )
-            )
+            # Remove fields check when module partner_firstname
+            # is migrated and added as a dependency
+            partner_fields = self.env["res.partner"]._fields.keys()
+            first_name = get_text(xml_tree, partner_section_xpath + "//Nome")
+            last_name = get_text(xml_tree, partner_section_xpath + "//Cognome")
+            if "firstname" in partner_fields:
+                vals["firstname"] = first_name
+                vals["lastname"] = last_name
+            else:
+                vals["name"] = " ".join(filter(None, [first_name, last_name]))
 
         return self.env["res.partner"].create(vals)
 
@@ -476,13 +403,14 @@ class AccountMoveInherit(models.Model):
             vals[field_name] = value
 
         if province := get_text(xml_tree, partner_section_xpath + "//Provincia"):
-            if provinces := self.env["res.country.state"].search(
-                [("code", "=", province), ("country_id", "=", partner.country_id.id)]
+            if province := self.env["res.country.state"].search(
+                [("code", "=", province), ("country_id", "=", partner.country_id.id)],
+                limit=1,
             ):
-                vals["state_id"] = fields.first(provinces).id
+                vals["state_id"] = province.id
             else:
                 message = self.env._(
-                    f"Province ({province}) not present in your system"
+                    "Province (%s) not present in your system", province
                 )
                 self.sudo().message_post(body=message)
 
@@ -495,17 +423,18 @@ class AccountMoveInherit(models.Model):
         if register_province := get_text(
             xml_tree, partner_section_xpath + "//ProvinciaAlbo"
         ):
-            if provinces := self.env["res.country.state"].search(
+            if province := self.env["res.country.state"].search(
                 [
                     ("code", "=", register_province),
                     ("country_id", "=", partner.country_id.id),
-                ]
+                ],
+                limit=1,
             ):
-                vals["l10n_edi_it_register_province"] = fields.first(provinces).id
+                vals["l10n_edi_it_register_province_id"] = province.id
             else:
                 message = self.env._(
-                    f"Register Province ({register_province}) not present in "
-                    f"your system"
+                    "Register Province (%s) not present in your system",
+                    register_province,
                 )
                 self.sudo().message_post(body=message)
 
@@ -552,32 +481,31 @@ class AccountMoveInherit(models.Model):
                     xml_tree, partner_info["section_xpath"], partner
                 )
 
-            if elements_stabile_organizzazione := xml_tree.xpath(
+            if element_stabile_organizzazione := xml_tree.xpath(
                 partner_info["section_xpath"] + "/StabileOrganizzazione"
             ):
-                for element_stabile_organizzazione in elements_stabile_organizzazione:
-                    self.write(
-                        {
-                            "l10n_it_edi_stabile_organizzazione_indirizzo": get_text(
-                                element_stabile_organizzazione, ".//Indirizzo"
-                            ),
-                            "l10n_it_edi_stabile_organizzazione_civico": get_date(
-                                element_stabile_organizzazione, ".//NumeroCivico"
-                            ),
-                            "l10n_it_edi_stabile_organizzazione_cap": get_date(
-                                element_stabile_organizzazione, ".//CAP"
-                            ),
-                            "l10n_it_edi_stabile_organizzazione_comune": get_date(
-                                element_stabile_organizzazione, ".//Comune"
-                            ),
-                            "l10n_it_edi_stabile_organizzazione_provincia": get_date(
-                                element_stabile_organizzazione, ".//Provincia"
-                            ),
-                            "l10n_it_edi_stabile_organizzazione_nazione": get_date(
-                                element_stabile_organizzazione, ".//Nazione"
-                            ),
-                        }
-                    )
+                self.write(
+                    {
+                        "l10n_it_edi_stabile_organizzazione_indirizzo": get_text(
+                            element_stabile_organizzazione, ".//Indirizzo"
+                        ),
+                        "l10n_it_edi_stabile_organizzazione_civico": get_date(
+                            element_stabile_organizzazione, ".//NumeroCivico"
+                        ),
+                        "l10n_it_edi_stabile_organizzazione_cap": get_date(
+                            element_stabile_organizzazione, ".//CAP"
+                        ),
+                        "l10n_it_edi_stabile_organizzazione_comune": get_date(
+                            element_stabile_organizzazione, ".//Comune"
+                        ),
+                        "l10n_it_edi_stabile_organizzazione_provincia": get_date(
+                            element_stabile_organizzazione, ".//Provincia"
+                        ),
+                        "l10n_it_edi_stabile_organizzazione_nazione": get_date(
+                            element_stabile_organizzazione, ".//Nazione"
+                        ),
+                    }
+                )
 
         return partner
 
@@ -599,7 +527,7 @@ class AccountMoveInherit(models.Model):
             self.invoice_line_ids += self.env["account.move.line"].create(
                 {
                     "move_id": self.id,
-                    "name": _(
+                    "name": self.env._(
                         "Summary for tax amount %(percentage)s",
                         percentage=percentage,
                     ),
@@ -611,7 +539,7 @@ class AccountMoveInherit(models.Model):
             messages_to_log.append(
                 Markup("<br/>").join(
                     (
-                        _(
+                        self.env._(
                             "Tax not found for summary line "
                             "with percentage %(percentage)s.",
                             percentage=percentage,
@@ -638,7 +566,7 @@ class AccountMoveInherit(models.Model):
             messages_to_log.append(
                 Markup("<br/>").join(
                     (
-                        _(
+                        self.env._(
                             "Line with description %(line_description)s "
                             "has been skipped "
                             "because import detail level is minimum.",
@@ -693,29 +621,33 @@ class AccountMoveInherit(models.Model):
             einvoice_line = self.env["l10n_it_edi.line"].create(vals)
 
             if elements_code := element.xpath(".//CodiceArticolo"):
-                for element_code in elements_code:
-                    self.env["l10n_it_edi.article_code"].create(
+                self.env["l10n_it_edi.article_code"].create(
+                    [
                         {
                             "name": get_text(element_code, ".//CodiceTipo"),
                             "code_val": get_text(element_code, ".//CodiceValore"),
                             "l10n_it_edi_line_id": einvoice_line.id,
                         }
-                    )
+                        for element_code in elements_code
+                    ]
+                )
 
             if elements_discount := element.xpath(".//ScontoMaggiorazione"):
-                for element_discount in elements_discount:
-                    self.env["l10n_it_edi.discount_rise_price"].create(
+                self.env["l10n_it_edi.discount_rise_price"].create(
+                    [
                         {
                             "name": get_text(element_discount, ".//Tipo"),
                             "percentage": get_float(element_discount, ".//Percentuale"),
                             "amount": get_float(element_discount, ".//Importo"),
                             "l10n_it_edi_line_id": einvoice_line.id,
                         }
-                    )
+                        for element_discount in elements_discount
+                    ]
+                )
 
             if elements_other_data := element.xpath(".//AltriDatiGestionali"):
-                for element_other_data in elements_other_data:
-                    self.env["l10n_it_edi.line_other_data"].create(
+                self.env["l10n_it_edi.line_other_data"].create(
+                    [
                         {
                             "name": get_text(element_other_data, ".//TipoDato"),
                             "text_ref": get_text(
@@ -729,18 +661,20 @@ class AccountMoveInherit(models.Model):
                             ),
                             "l10n_it_edi_line_id": einvoice_line.id,
                         }
-                    )
+                        for element_other_data in elements_other_data
+                    ]
+                )
 
             messages_to_log += super()._l10n_it_edi_import_line(
                 element, move_line, extra_info=extra_info
             )
         else:
             raise UserError(
-                _(
+                self.env._(
                     "Import detail level %(import_detail_level)s not supported.\n"
                     "Please set an import detail level in company %(company)s.",
                     import_detail_level=import_detail_level,
-                    company=company,
+                    company=company.name,
                 )
             )
         return messages_to_log
@@ -757,9 +691,13 @@ class AccountMoveInherit(models.Model):
             != 0
         ):
             error_message = self.env._(
-                f"Untaxed amount ({self.amount_untaxed}) "
-                f"does not match with "
-                f"e-invoice untaxed amount ({self.l10n_it_edi_amount_untaxed})"
+                "Untaxed amount (%(amount_untaxed)s) "
+                "does not match with "
+                "e-invoice untaxed amount (%(l10n_it_edi_amount_untaxed)s) "
+                "with rounding of (%(currency_rounding)s)",
+                amount_untaxed=self.amount_untaxed,
+                l10n_it_edi_amount_untaxed=self.l10n_it_edi_amount_untaxed,
+                currency_rounding=self.currency_id.rounding,
             )
         return error_message
 
@@ -775,9 +713,13 @@ class AccountMoveInherit(models.Model):
             != 0
         ):
             error_message = self.env._(
-                f"Taxed amount ({self.amount_tax}) "
-                f"does not match with "
-                f"e-invoice taxed amount ({self.l10n_it_edi_amount_tax})"
+                "Taxed amount (%(amount_tax)s) "
+                "does not match with "
+                "e-invoice taxed amount (%(l10n_it_edi_amount_tax)s) "
+                "with rounding of (%(currency_rounding)s)",
+                amount_tax=self.amount_tax,
+                l10n_it_edi_amount_tax=self.l10n_it_edi_amount_tax,
+                currency_rounding=self.currency_id.rounding,
             )
         return error_message
 
@@ -793,9 +735,13 @@ class AccountMoveInherit(models.Model):
             != 0
         ):
             error_message = self.env._(
-                f"Total amount ({self.amount_total}) "
-                f"does not match with "
-                f"e-invoice total amount ({self.l10n_it_edi_amount_total})"
+                "Total amount (%(self.amount_total)s) "
+                "does not match with "
+                "e-invoice total amount (%(self.l10n_it_edi_amount_total)s) "
+                "with rounding of (%(currency_rounding)s)",
+                amount_total=self.amount_total,
+                l10n_it_edi_amount_total=self.l10n_it_edi_amount_total,
+                currency_rounding=self.currency_id.rounding,
             )
         return error_message
 
@@ -829,13 +775,23 @@ class AccountMoveInherit(models.Model):
             )
         return buyer_seller_info
 
-    def _l10n_it_edi_extension_prepare_partner_values(self, invoice_data):
-        buyer_seller_info = self._l10n_it_buyer_seller_info()
-        is_incoming = self.is_purchase_document(include_receipts=True)
-        partner_role = "seller" if is_incoming else "buyer"
-        partner_info = buyer_seller_info[partner_role]
+    def _l10n_it_edi_extension_prepare_partner_values(self, tree, section_xpath=None):
+        if section_xpath:
+            partner_info = {
+                "name_xpath": f"{section_xpath}//Denominazione",
+                "first_name_xpath": f"{section_xpath}//Nome",
+                "last_name_xpath": f"{section_xpath}//Cognome",
+                "country_code_xpath": f"{section_xpath}//IdPaese",
+                "vat_xpath": f"{section_xpath}//IdCodice",
+                "codice_fiscale_xpath": f"{section_xpath}//CodiceFiscale",
+                "eori_code_xpath": f"{section_xpath}//CodEORI",
+            }
+        else:
+            buyer_seller_info = self._l10n_it_buyer_seller_info()
+            is_incoming = self.is_purchase_document(include_receipts=True)
+            partner_role = "seller" if is_incoming else "buyer"
+            partner_info = buyer_seller_info[partner_role]
 
-        tree = invoice_data["xml_tree"]
         name = get_text(tree, partner_info["name_xpath"])
         country_code = get_text(tree, partner_info["country_code_xpath"])
         country = self.env["res.country"].search([("code", "=", country_code)], limit=1)
@@ -851,35 +807,46 @@ class AccountMoveInherit(models.Model):
 
         if name:
             vals["name"] = name
-
-        # Remove fields check when module partner_firstname
-        # is migrated and added as a dependency
-        partner_fields = self.env["res.partner"]._fields.keys()
-        if (
-            first_name := get_text(tree, partner_info["first_name_xpath"])
-            and "firstname" in partner_fields
-        ):
-            vals["firstname"] = first_name
-        if (
-            last_name := get_text(tree, partner_info["last_name_xpath"])
-            and "lastname" in partner_fields
-        ):
-            vals["lastname"] = last_name
+        else:
+            # Remove fields check when module partner_firstname
+            # is migrated and added as a dependency
+            partner_fields = self.env["res.partner"]._fields.keys()
+            first_name = get_text(tree, partner_info["first_name_xpath"])
+            last_name = get_text(tree, partner_info["last_name_xpath"])
+            if "firstname" in partner_fields:
+                vals["firstname"] = first_name
+                vals["lastname"] = last_name
+            else:
+                vals["name"] = " ".join(filter(None, [first_name, last_name]))
         return vals
 
-    def _l10n_it_edi_extension_create_partner(self, invoice_data):
+    def _l10n_it_edi_extension_create_partner(self, invoice_data, section_xpath=None):
         partner_values = self._l10n_it_edi_extension_prepare_partner_values(
-            invoice_data
+            invoice_data, section_xpath
         )
         return self.env["res.partner"].create(partner_values)
 
     def _l10n_it_edi_import_invoice(self, invoice, data, is_new):
         invoice = super()._l10n_it_edi_import_invoice(invoice, data, is_new)
+
+        body_tree = data["xml_tree"]
         if (
             invoice
             and not invoice.partner_id
             and self.env.company.l10n_edi_it_create_partner
         ):
-            partner = self._l10n_it_edi_extension_create_partner(data)
+            partner = self._l10n_it_edi_extension_create_partner(body_tree)
             invoice.partner_id = partner
+
+        if body_tree.xpath("//RappresentanteFiscale"):
+            tax_representative = self._l10n_it_edi_extension_create_partner(
+                body_tree, section_xpath="//RappresentanteFiscale"
+            )
+            invoice.l10n_it_edi_tax_representative_id = tax_representative.id
+
+        if body_tree.xpath("//TerzoIntermediarioOSoggettoEmittente"):
+            intermediary = self._l10n_it_edi_extension_create_partner(
+                body_tree, section_xpath="//TerzoIntermediarioOSoggettoEmittente"
+            )
+            invoice.l10n_it_edi_intermediary_id = intermediary.id
         return invoice

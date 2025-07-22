@@ -36,8 +36,6 @@ class ResCityItCode(models.Model):
 
     """
         To create res.city.it.code.csv:
-        http://www.agenziaentrate.gov.it/wps/content/Nsilib/Nsi/Strumenti/
-    Codici+attivita+e+tributo/Codici+territorio/Comuni+italia+esteri/
         - download the file named: Codici Comuni d’Italia - xls
         - open it in LibreOffice and save it as .ods
         - some date cells contain a "'" to be removed using Calc's menu

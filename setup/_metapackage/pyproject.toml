@@ -1,6 +1,6 @@
 [project]
 name = "odoo-addons-oca-l10n-italy"
-version = "18.0.20250606.0"
+version = "18.0.20250711.0"
 dependencies = [
     "odoo-addon-l10n_it_abicab==18.0.*",
     "odoo-addon-l10n_it_account==18.0.*",
@@ -13,6 +13,7 @@ dependencies = [
     "odoo-addon-l10n_it_edi_doi_extension==18.0.*",
     "odoo-addon-l10n_it_financial_statement_eu==18.0.*",
     "odoo-addon-l10n_it_vat_registries==18.0.*",
+    "odoo-addon-l10n_it_vat_settlement_communication==18.0.*",
 ]
 classifiers=[
     "Programming Language :: Python",

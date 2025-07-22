@@ -54,7 +54,7 @@ class TestFatturaPAXMLValidation(TestItEdi):
     def test_01_xml_import(self):
         move = self._edi_import_invoice("IT05979361218_011.xml")
         move._extend_with_attachments(move.l10n_it_edi_attachment_id, new=True)
-        self.assertEqual(move.l10n_it_edi_intermediary_id.vat, "IT03339130126")
+        self.assertEqual(move.l10n_it_edi_intermediary_id.vat, "03339130126")
 
     def test_02_xml_import(self):
         move = self._edi_import_invoice("IT02780790107_11005.xml")

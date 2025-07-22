@@ -7,13 +7,11 @@ Le funzionalità principali incluse sono:
 1. Anteprima e Download del file XML:
 
    - Aggiunge un pulsante ("Preview XML") direttamente nel form della fattura.
-  Questo pulsante permette di visualizzare un'anteprima del file XML della fattura elettronica prima dell'invio effettivo.
-   - Dalla stessa finestra di anteprima, è possibile scaricare il file XML generato.
-   - Aggiunta della possibilità di visualizzare l'anteprima del file XML anche dal portale.
+   - Dalla stessa finestra della fattura, è possibile scaricare il file XML generato.
 
-2. Aggiunge campi nell'export delle fatture XML:
+2. Valorizza i seguenti campi/nodi della fattura elettronica esportata:
 
-   - `<RiferimentoAmministrazione>` (sia sulla riga che nei dati generali): identificativo utilizzato per uso amministrativo/gestionale interno. È un campo libero che può essere utilizzato per inserire riferimenti specifici richiesti dalla Pubblica Amministrazione o altri riferimenti utili per la gestione amministrativa.
+   - `<RiferimentoAmministrazione>` (sia sulla riga o nell'azienda): identificativo utilizzato per uso amministrativo/gestionale interno. È un campo libero che può essere utilizzato per inserire riferimenti specifici richiesti dalla Pubblica Amministrazione o altri riferimenti utili per la gestione amministrativa.
    - `<StabileOrganizzazione>`: rappresenta i dati della sede operativa stabile del cedente/prestatore in Italia se diversa dalla sede legale
    - `<Causale>`: in questo caso non c'è un campo apposito, ma trascrive i "Termini e condizioni" della fattura
    - `<Art73>`: indica se il documento è stato emesso secondo modalità e termini stabiliti con decreto ministeriale ai sensi dell'articolo 73 del DPR 633/72
@@ -22,6 +20,7 @@ Le funzionalità principali incluse sono:
 
    - Aggiunge un'opzione per creare i contatti presenti in una fattura elettronica se non esistono in anagrafica tra cui:
      - `<CessionarioCommittente>` e `<CedentePrestatore>` invece di scrivere solamente i dettagli nel chatter.
+   - Creazione di altri contatti presenti in una fattura elettronica se non esistono in anagrafica tra cui:
      - `<RappresentanteFiscale>`
      - `<TerzoIntermediarioOSoggettoEmittente>`
    - Gestione delle Fatture Elettroniche Multiple:
@@ -31,7 +30,7 @@ Le funzionalità principali incluse sono:
      - senza righe
      - una riga per ogni aliquota
      - tutte le righe (default)
-   - Gestione avanzata dei `<DatiRiepilogo>` con l'importazione di:
+   - Importazione dei `<DatiRiepilogo>`:
      - `<AliquotaIVA>`
      - `<Natura>`: Indica il motivo per cui un'operazione non prevede l'IVA
      - `<SpeseAccessorie>`: es. trasporto, imballaggio
@@ -40,7 +39,7 @@ Le funzionalità principali incluse sono:
      - `<Imposta>`
      - `<EsigibilitaIVA>`: Indica quando l'IVA diventa esigibile (immediata, differita o scissione dei pagamenti)
      - `<RiferimentoNormativo>`: Obbligatorio quando si usa il campo `<Natura>`
-   - Gestione avanzata dei `<DatiGeneraliDocumento>` con l'importazione di:
+   - Importazione dei `<DatiGeneraliDocumento>`:
      - `<Arrotondamento>`
      - `<Art73>`: indica se il documento è stato emesso secondo modalità e termini stabiliti con decreto ministeriale ai sensi dell'articolo 73 del DPR 633/72
      - `<DatiSAL>` e `<RiferimentoFase>`: utilizzati per indicare lo stato di avanzamento dei lavori in caso di fatturazione dilazionata/progressiva (contratti di appalto, servizi continuativi o lavori in corso d'opera)
@@ -52,7 +51,7 @@ Le funzionalità principali incluse sono:
        Nel file XML, questi codici sono nel nodo `<CodiceArticolo>` che può contenere:
        - `<CodiceTipo>`: identifica il tipo di codifica utilizzata
        - `<CodiceValore>`: il valore effettivo del codice
-     - Miglioramento della gestione dello sconto o maggiorazione, nodo `<ScontoMaggiorazione>`
+     - Registrazione dello sconto o maggiorazione, nodo `<ScontoMaggiorazione>`, nelle righe di dettaglio della fattura.
      - Importazione dei dati del nodo `<AltriDatiGestionali>` (informazioni supplementari che non trovano posto negli altri campi standard della fattura elettronica) che può contenere:
        - `<TipoDato>`: identifica il tipo di informazione aggiuntiva che si sta inserendo
        - `<RiferimentoTesto>`: contiene un valore testuale dell'informazione aggiuntiva
@@ -74,39 +73,34 @@ Le funzionalità principali incluse sono:
       - controllo sul totale IVA inclusa
       - miglioramento della validazione del codice fiscale
 
-4. Aggiunge di un wizard per calcolare i codici fiscali attingendo dai dati dei comuni italiani reperibili dal sito dell'AdE http://www.agenziaentrate.gov.it/wps/content/Nsilib/Nsi/Strumenti/Codici+attivita+e+tributo/Codici+territorio/Comuni+italia+esteri
-
-5. Importazione di una fattura elettronica senza righe, con una riga per ogni aliquota, oppure con tutte le righe (default).
-
-6. Il campo "Termini e condizioni" viene scritto nel nodo "Causale" della fattura elettronica.
+4. Aggiunge di un wizard per calcolare i codici fiscali
 
 \<<https://www.fatturapa.gov.it>\>
 
 
 **English**
 
-his module extends Odoo's standard Italian electronic invoicing functionality, introducing useful tools such as XML preview and fiscal code calculation and improvements in importing and exporting XML invoices.
+This module extends Odoo's standard Italian electronic invoicing functionality, introducing useful tools such as XML preview and fiscal code calculation and improvements in importing and exporting XML invoices.
 
 The main features included are:
 
 1. XML File Preview and Download:
 
    - Adds a button ("Preview XML") directly in the invoice form.
-     This button allows you to preview the electronic invoice XML file before actual submission.
-   - From the same preview window, you can download the generated XML file.
-   - Added the ability to view XML preview also from the portal.
+   - From the same invoice form, you can download the generated XML file.
 
 2. Adds fields in XML invoice export:
 
-   - `<RiferimentoAmministrazione>` (both on line and in general data): identifier used for internal administrative/management purposes. It's a free field that can be used to insert specific references required by Public Administration or other useful references for administrative management.
+   - `<RiferimentoAmministrazione>` (both on line or on company): identifier used for internal administrative/management purposes. It's a free field that can be used to insert specific references required by Public Administration or other useful references for administrative management.
    - `<StabileOrganizzazione>`: represents the data of the seller/provider's permanent establishment in Italy if different from the registered office
-   - `<Causale>`: in this case there is no specific field, but it transcribes the "Terms and conditions" od the invoice.
+   - `<Causale>`: in this case there is no specific field, but it transcribes the "Terms and conditions" of the invoice.
    - `<Art73>`: indicates if the document was issued according to methods and terms established by ministerial decree pursuant to article 73 of DPR 633/72
 
 3. Improvements in XML invoice import:
 
    - Adds an option to create contacts present in an electronic invoice if they don't exist in the address book, including:
      - `<CessionarioCommittente>` and `<CedentePrestatore>` instead of just writing the details in the chatter.
+   - Creation of other contacts present in an electronic invoice if they don't exist in the address book, including:
      - `<RappresentanteFiscale>`
      - `<TerzoIntermediarioOSoggettoEmittente>`
    - Multiple Electronic Invoice Management:
@@ -116,7 +110,7 @@ The main features included are:
      - without lines
      - one line for each VAT rate
      - all lines (default)
-   - Advanced management of `<DatiRiepilogo>` with import of:
+   - Import of `<DatiRiepilogo>`:
      - `<AliquotaIVA>`
      - `<Natura>`: Indicates the reason why an operation does not include VAT
      - `<SpeseAccessorie>`: e.g., transport, packaging
@@ -125,7 +119,7 @@ The main features included are:
      - `<Imposta>`
      - `<EsigibilitaIVA>`: Indicates when VAT becomes payable (immediate, deferred, or split payment)
      - `<RiferimentoNormativo>`: Required when using the `<Natura>` field
-   - Advanced management of `<DatiGeneraliDocumento>` with import of:
+   - Import of `<DatiGeneraliDocumento>`:
      - `<Arrotondamento>`
      - `<Art73>`: indicates if the document was issued according to methods and terms established by ministerial decree pursuant to article 73 of DPR 633/72
      - `<DatiSAL>` and `<RiferimentoFase>`: used to indicate the progress status of work in case of deferred/progressive invoicing (procurement contracts, continuous services, or work in progress)
@@ -137,7 +131,7 @@ The main features included are:
        In the XML file, these codes are in the `<CodiceArticolo>` node which can contain:
        - `<CodiceTipo>`: identifies the type of coding used
        - `<CodiceValore>`: the actual code value
-     - Improved management of discount or surcharge, `<ScontoMaggiorazione>` node
+     - Recording of discounts or surcharges, `<ScontoMaggiorazione>`, in the invoice detail lines.
      - Import of `<AltriDatiGestionali>` node data (supplementary information that doesn't fit in other standard electronic invoice fields) which can contain:
        - `<TipoDato>`: identifies the type of additional information being entered
        - `<RiferimentoTesto>`: contains a textual value of the additional information
@@ -159,10 +153,6 @@ The main features included are:
       - check on total including VAT
       - improved fiscal code validation
 
-4. Adds a wizard to calculate fiscal codes drawing from Italian municipality data available from the Revenue Agency website http://www.agenziaentrate.gov.it/wps/content/Nsilib/Nsi/Strumenti/Codici+attivita+e+tributo/Codici+territorio/Comuni+italia+esteri
-
-5. Importing e-bills with no lines, one line for each tax rate, or all lines (default).
-
-6. The field "Terms and Conditions" is written in the node "Causale" of the electronic invoice.
+4. Adds a wizard to calculate fiscal codes
 
 \<<https://www.fatturapa.gov.it>\>

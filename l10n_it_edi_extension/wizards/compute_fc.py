@@ -2,21 +2,12 @@
 
 import logging
 
-from odoo import _, api, fields, models
+from codicefiscale import build
+
+from odoo import _, fields, models
 from odoo.exceptions import UserError
-from odoo.osv import expression
 
 _logger = logging.getLogger(__name__)
-
-try:
-    from codicefiscale import build
-
-except ImportError:
-    _logger.warning(
-        "codicefiscale library not found. "
-        "If you plan to use it, please install the codicefiscale library"
-        " from https://pypi.python.org/pypi/codicefiscale"
-    )
 
 
 class WizardComputeFc(models.TransientModel):
@@ -34,62 +25,6 @@ class WizardComputeFc(models.TransientModel):
         "res.country.state", required=True, string="Province"
     )
     sex = fields.Selection([("M", "Male"), ("F", "Female")], required=True)
-
-    @api.onchange("birth_city")
-    def onchange_birth_city(self):
-        self.ensure_one()
-
-        it = self.env.ref("base.it").id
-        res = {
-            "domain": {"birth_province": [("country_id", "=", it)]},
-            "value": {"birth_province": False},
-        }
-
-        if self.birth_city:
-            # SMELLS: Add a foreign key in "res_city_it_code"
-            #          instead using the weak link "code" <-> "province".
-            #
-            city_ids = self.env["res.city.it.code"].search(
-                [("name", "=", self.birth_city.name)]
-            )
-            provinces = city_ids.mapped("province")
-            province_ids = self.env["res.country.state"].search(
-                [("country_id", "=", it), ("code", "in", provinces)]
-            )
-
-            res["domain"]["birth_province"] = expression.AND(
-                [res["domain"]["birth_province"], [("id", "in", province_ids.ids)]]
-            )
-
-            if len(province_ids) == 1:
-                res["value"]["birth_province"] = province_ids.id
-
-        return res
-
-    @api.onchange("birth_province")
-    def onchange_birth_province(self):
-        self.ensure_one()
-
-        res = {"domain": {"birth_city": []}}
-
-        if not self.birth_city:
-            if self.birth_province:
-                # SMELLS: Add a foreign key in "res_city_it_code"
-                #          instead using the weak link "code" <-> "province".
-                #
-                city_ids = self.env["res.city.it.code"].search(
-                    [("province", "=", self.birth_province.code)]
-                )
-                names = city_ids.mapped("name")
-                distinct_city_ids = self.env["res.city.it.code.distinct"].search(
-                    [("name", "in", names)]
-                )
-
-                res["domain"]["birth_city"] = expression.AND(
-                    [res["domain"]["birth_city"], [("id", "in", distinct_city_ids.ids)]]
-                )
-
-        return res
 
     def _get_national_code(self, birth_city, birth_prov, birth_date):
         """

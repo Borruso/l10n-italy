@@ -14,7 +14,7 @@ class ResPartnerInherit(models.Model):
         string="Do not update the contact from Electronic Invoice Details"
     )
     l10n_edi_it_register = fields.Char(string="Professional Register")
-    l10n_edi_it_register_province = fields.Many2one(
+    l10n_edi_it_register_province_id = fields.Many2one(
         "res.country.state", string="Register Province"
     )
     l10n_edi_it_register_code = fields.Char(string="Register Registration Number")

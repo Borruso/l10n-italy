@@ -8,10 +8,11 @@
 
 /*
 :Author: David Goodger (goodger@python.org)
-:Id: $Id: html4css1.css 8954 2022-01-20 10:10:25Z milde $
+:Id: $Id: html4css1.css 9511 2024-01-13 09:50:07Z milde $
 :Copyright: This stylesheet has been placed in the public domain.
 
 Default cascading style sheet for the HTML output of Docutils.
+Despite the name, some widely supported CSS2 features are used.
 
 See https://docutils.sourceforge.io/docs/howto/html-stylesheets.html for how to
 customize this style sheet.
@@ -274,7 +275,7 @@ pre.literal-block, pre.doctest-block, pre.math, pre.code {
   margin-left: 2em ;
   margin-right: 2em }
 
-pre.code .ln { color: grey; } /* line numbers */
+pre.code .ln { color: gray; } /* line numbers */
 pre.code, code { background-color: #eeeeee }
 pre.code .comment, code .comment { color: #5C6576 }
 pre.code .keyword, code .keyword { color: #3B0D06; font-weight: bold }
@@ -300,7 +301,7 @@ span.option {
 span.pre {
   white-space: pre }
 
-span.problematic {
+span.problematic, pre.problematic {
   color: red }
 
 span.section-subtitle {
@@ -368,7 +369,7 @@ ul.auto-toc {
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !! source digest: sha256:f1248807eff1e257c248a5aa7e2174684c32b780f443ff30730f1f1b1e850bd1
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! -->
-<p><a class="reference external image-reference" href="https://odoo-community.org/page/development-status"><img alt="Production/Stable" src="https://img.shields.io/badge/maturity-Production%2FStable-green.png" /></a> <a class="reference external image-reference" href="http://www.gnu.org/licenses/agpl-3.0-standalone.html"><img alt="License: AGPL-3" src="https://img.shields.io/badge/licence-AGPL--3-blue.png" /></a> <a class="reference external image-reference" href="https://github.com/OCA/l10n-italy/tree/18.0/l10n_it_edi_extension"><img alt="OCA/l10n-italy" src="https://img.shields.io/badge/github-OCA%2Fl10n--italy-lightgray.png?logo=github" /></a> <a class="reference external image-reference" href="https://translation.odoo-community.org/projects/l10n-italy-18-0/l10n-italy-18-0-l10n_it_edi_extension"><img alt="Translate me on Weblate" src="https://img.shields.io/badge/weblate-Translate%20me-F47D42.png" /></a> <a class="reference external image-reference" href="https://runboat.odoo-community.org/builds?repo=OCA/l10n-italy&amp;target_branch=18.0"><img alt="Try me on Runboat" src="https://img.shields.io/badge/runboat-Try%20me-875A7B.png" /></a></p>
+<p><a class="reference external image-reference" href="https://odoo-community.org/page/development-status"><img alt="Beta" src="https://img.shields.io/badge/maturity-Beta-yellow.png" /></a> <a class="reference external image-reference" href="http://www.gnu.org/licenses/agpl-3.0-standalone.html"><img alt="License: AGPL-3" src="https://img.shields.io/badge/licence-AGPL--3-blue.png" /></a> <a class="reference external image-reference" href="https://github.com/OCA/l10n-italy/tree/18.0/l10n_it_edi_extension"><img alt="OCA/l10n-italy" src="https://img.shields.io/badge/github-OCA%2Fl10n--italy-lightgray.png?logo=github" /></a> <a class="reference external image-reference" href="https://translation.odoo-community.org/projects/l10n-italy-18-0/l10n-italy-18-0-l10n_it_edi_extension"><img alt="Translate me on Weblate" src="https://img.shields.io/badge/weblate-Translate%20me-F47D42.png" /></a> <a class="reference external image-reference" href="https://runboat.odoo-community.org/builds?repo=OCA/l10n-italy&amp;target_branch=18.0"><img alt="Try me on Runboat" src="https://img.shields.io/badge/runboat-Try%20me-875A7B.png" /></a></p>
 <p><strong>Italiano</strong></p>
 <p>Questo modulo estende le funzionalità standard della fatturazione
 elettronica italiana di Odoo, introducendo strumenti utili come
@@ -378,21 +379,17 @@ nell’importazione e nell’esportazione delle fatture XML.</p>
 <ol class="arabic simple">
 <li>Anteprima e Download del file XML:<ul>
 <li>Aggiunge un pulsante (“Preview XML”) direttamente nel form della
-fattura. Questo pulsante permette di visualizzare un’anteprima del
-file XML della fattura elettronica prima dell’invio effettivo.</li>
-<li>Dalla stessa finestra di anteprima, è possibile scaricare il file
+fattura.</li>
+<li>Dalla stessa finestra della fattura, è possibile scaricare il file
 XML generato.</li>
-<li>Aggiunta della possibilità di visualizzare l’anteprima del file
-XML anche dal portale.</li>
 </ul>
 </li>
-<li>Aggiunge campi nell’export delle fatture XML:<ul>
-<li><tt class="docutils literal">&lt;RiferimentoAmministrazione&gt;</tt> (sia sulla riga che nei dati
-generali): identificativo utilizzato per uso
-amministrativo/gestionale interno. È un campo libero che può
-essere utilizzato per inserire riferimenti specifici richiesti
-dalla Pubblica Amministrazione o altri riferimenti utili per la
-gestione amministrativa.</li>
+<li>Valorizza i seguenti campi/nodi della fattura elettronica esportata:<ul>
+<li><tt class="docutils literal">&lt;RiferimentoAmministrazione&gt;</tt> (sia sulla riga o nell’azienda):
+identificativo utilizzato per uso amministrativo/gestionale
+interno. È un campo libero che può essere utilizzato per inserire
+riferimenti specifici richiesti dalla Pubblica Amministrazione o
+altri riferimenti utili per la gestione amministrativa.</li>
 <li><tt class="docutils literal">&lt;StabileOrganizzazione&gt;</tt>: rappresenta i dati della sede
 operativa stabile del cedente/prestatore in Italia se diversa
 dalla sede legale</li>
@@ -408,6 +405,10 @@ dell’articolo 73 del DPR 633/72</li>
 elettronica se non esistono in anagrafica tra cui:<ul>
 <li><tt class="docutils literal">&lt;CessionarioCommittente&gt;</tt> e <tt class="docutils literal">&lt;CedentePrestatore&gt;</tt> invece
 di scrivere solamente i dettagli nel chatter.</li>
+</ul>
+</li>
+<li>Creazione di altri contatti presenti in una fattura elettronica se
+non esistono in anagrafica tra cui:<ul>
 <li><tt class="docutils literal">&lt;RappresentanteFiscale&gt;</tt></li>
 <li><tt class="docutils literal">&lt;TerzoIntermediarioOSoggettoEmittente&gt;</tt></li>
 </ul>
@@ -426,7 +427,7 @@ importazione:<ul>
 <li>tutte le righe (default)</li>
 </ul>
 </li>
-<li>Gestione avanzata dei <tt class="docutils literal">&lt;DatiRiepilogo&gt;</tt> con l’importazione di:<ul>
+<li>Importazione dei <tt class="docutils literal">&lt;DatiRiepilogo&gt;</tt>:<ul>
 <li><tt class="docutils literal">&lt;AliquotaIVA&gt;</tt></li>
 <li><tt class="docutils literal">&lt;Natura&gt;</tt>: Indica il motivo per cui un’operazione non
 prevede l’IVA</li>
@@ -440,8 +441,7 @@ prevede l’IVA</li>
 <tt class="docutils literal">&lt;Natura&gt;</tt></li>
 </ul>
 </li>
-<li>Gestione avanzata dei <tt class="docutils literal">&lt;DatiGeneraliDocumento&gt;</tt> con
-l’importazione di:<ul>
+<li>Importazione dei <tt class="docutils literal">&lt;DatiGeneraliDocumento&gt;</tt>:<ul>
 <li><tt class="docutils literal">&lt;Arrotondamento&gt;</tt></li>
 <li><tt class="docutils literal">&lt;Art73&gt;</tt>: indica se il documento è stato emesso secondo
 modalità e termini stabiliti con decreto ministeriale ai sensi
@@ -465,8 +465,9 @@ codici sono nel nodo <tt class="docutils literal">&lt;CodiceArticolo&gt;</tt> ch
 <li><tt class="docutils literal">&lt;CodiceValore&gt;</tt>: il valore effettivo del codice</li>
 </ul>
 </li>
-<li>Miglioramento della gestione dello sconto o maggiorazione, nodo
-<tt class="docutils literal">&lt;ScontoMaggiorazione&gt;</tt></li>
+<li>Registrazione dello sconto o maggiorazione, nodo
+<tt class="docutils literal">&lt;ScontoMaggiorazione&gt;</tt>, nelle righe di dettaglio della
+fattura.</li>
 <li>Importazione dei dati del nodo <tt class="docutils literal">&lt;AltriDatiGestionali&gt;</tt>
 (informazioni supplementari che non trovano posto negli altri
 campi standard della fattura elettronica) che può contenere:<ul>
@@ -513,42 +514,33 @@ utili per la gestione amministrativa.</li>
 </li>
 </ul>
 </li>
-<li>Aggiunge di un wizard per calcolare i codici fiscali attingendo dai
-dati dei comuni italiani reperibili dal sito dell’AdE
-<a class="reference external" href="http://www.agenziaentrate.gov.it/wps/content/Nsilib/Nsi/Strumenti/Codici+attivita+e+tributo/Codici+territorio/Comuni+italia+esteri">http://www.agenziaentrate.gov.it/wps/content/Nsilib/Nsi/Strumenti/Codici+attivita+e+tributo/Codici+territorio/Comuni+italia+esteri</a></li>
-<li>Importazione di una fattura elettronica senza righe, con una riga per
-ogni aliquota, oppure con tutte le righe (default).</li>
-<li>Il campo “Termini e condizioni” viene scritto nel nodo “Causale”
-della fattura elettronica.</li>
+<li>Aggiunge di un wizard per calcolare i codici fiscali</li>
 </ol>
 <p>&lt;<a class="reference external" href="https://www.fatturapa.gov.it">https://www.fatturapa.gov.it</a>&gt;</p>
 <p><strong>English</strong></p>
-<p>his module extends Odoo’s standard Italian electronic invoicing
+<p>This module extends Odoo’s standard Italian electronic invoicing
 functionality, introducing useful tools such as XML preview and fiscal
 code calculation and improvements in importing and exporting XML
 invoices.</p>
 <p>The main features included are:</p>
 <ol class="arabic simple">
 <li>XML File Preview and Download:<ul>
-<li>Adds a button (“Preview XML”) directly in the invoice form. This
-button allows you to preview the electronic invoice XML file
-before actual submission.</li>
-<li>From the same preview window, you can download the generated XML
+<li>Adds a button (“Preview XML”) directly in the invoice form.</li>
+<li>From the same invoice form, you can download the generated XML
 file.</li>
-<li>Added the ability to view XML preview also from the portal.</li>
 </ul>
 </li>
 <li>Adds fields in XML invoice export:<ul>
-<li><tt class="docutils literal">&lt;RiferimentoAmministrazione&gt;</tt> (both on line and in general
-data): identifier used for internal administrative/management
-purposes. It’s a free field that can be used to insert specific
-references required by Public Administration or other useful
-references for administrative management.</li>
+<li><tt class="docutils literal">&lt;RiferimentoAmministrazione&gt;</tt> (both on line or on company):
+identifier used for internal administrative/management purposes.
+It’s a free field that can be used to insert specific references
+required by Public Administration or other useful references for
+administrative management.</li>
 <li><tt class="docutils literal">&lt;StabileOrganizzazione&gt;</tt>: represents the data of the
 seller/provider’s permanent establishment in Italy if different
 from the registered office</li>
 <li><tt class="docutils literal">&lt;Causale&gt;</tt>: in this case there is no specific field, but it
-transcribes the “Terms and conditions” od the invoice.</li>
+transcribes the “Terms and conditions” of the invoice.</li>
 <li><tt class="docutils literal">&lt;Art73&gt;</tt>: indicates if the document was issued according to
 methods and terms established by ministerial decree pursuant to
 article 73 of DPR 633/72</li>
@@ -559,6 +551,10 @@ article 73 of DPR 633/72</li>
 if they don’t exist in the address book, including:<ul>
 <li><tt class="docutils literal">&lt;CessionarioCommittente&gt;</tt> and <tt class="docutils literal">&lt;CedentePrestatore&gt;</tt>
 instead of just writing the details in the chatter.</li>
+</ul>
+</li>
+<li>Creation of other contacts present in an electronic invoice if
+they don’t exist in the address book, including:<ul>
 <li><tt class="docutils literal">&lt;RappresentanteFiscale&gt;</tt></li>
 <li><tt class="docutils literal">&lt;TerzoIntermediarioOSoggettoEmittente&gt;</tt></li>
 </ul>
@@ -576,7 +572,7 @@ invoice maintaining the original header</li>
 <li>all lines (default)</li>
 </ul>
 </li>
-<li>Advanced management of <tt class="docutils literal">&lt;DatiRiepilogo&gt;</tt> with import of:<ul>
+<li>Import of <tt class="docutils literal">&lt;DatiRiepilogo&gt;</tt>:<ul>
 <li><tt class="docutils literal">&lt;AliquotaIVA&gt;</tt></li>
 <li><tt class="docutils literal">&lt;Natura&gt;</tt>: Indicates the reason why an operation does not
 include VAT</li>
@@ -590,7 +586,7 @@ include VAT</li>
 <tt class="docutils literal">&lt;Natura&gt;</tt> field</li>
 </ul>
 </li>
-<li>Advanced management of <tt class="docutils literal">&lt;DatiGeneraliDocumento&gt;</tt> with import of:<ul>
+<li>Import of <tt class="docutils literal">&lt;DatiGeneraliDocumento&gt;</tt>:<ul>
 <li><tt class="docutils literal">&lt;Arrotondamento&gt;</tt></li>
 <li><tt class="docutils literal">&lt;Art73&gt;</tt>: indicates if the document was issued according to
 methods and terms established by ministerial decree pursuant to
@@ -614,8 +610,8 @@ coding standards. In the XML file, these codes are in the
 <li><tt class="docutils literal">&lt;CodiceValore&gt;</tt>: the actual code value</li>
 </ul>
 </li>
-<li>Improved management of discount or surcharge,
-<tt class="docutils literal">&lt;ScontoMaggiorazione&gt;</tt> node</li>
+<li>Recording of discounts or surcharges,
+<tt class="docutils literal">&lt;ScontoMaggiorazione&gt;</tt>, in the invoice detail lines.</li>
 <li>Import of <tt class="docutils literal">&lt;AltriDatiGestionali&gt;</tt> node data (supplementary
 information that doesn’t fit in other standard electronic
 invoice fields) which can contain:<ul>
@@ -662,13 +658,7 @@ for administrative management.</li>
 </li>
 </ul>
 </li>
-<li>Adds a wizard to calculate fiscal codes drawing from Italian
-municipality data available from the Revenue Agency website
-<a class="reference external" href="http://www.agenziaentrate.gov.it/wps/content/Nsilib/Nsi/Strumenti/Codici+attivita+e+tributo/Codici+territorio/Comuni+italia+esteri">http://www.agenziaentrate.gov.it/wps/content/Nsilib/Nsi/Strumenti/Codici+attivita+e+tributo/Codici+territorio/Comuni+italia+esteri</a></li>
-<li>Importing e-bills with no lines, one line for each tax rate, or all
-lines (default).</li>
-<li>The field “Terms and Conditions” is written in the node “Causale” of
-the electronic invoice.</li>
+<li>Adds a wizard to calculate fiscal codes</li>
 </ol>
 <p>&lt;<a class="reference external" href="https://www.fatturapa.gov.it">https://www.fatturapa.gov.it</a>&gt;</p>
 <p><strong>Table of contents</strong></p>
@@ -816,7 +806,9 @@ If you spotted it first, help us to smash it by providing a detailed and welcome
 <div class="section" id="maintainers">
 <h2><a class="toc-backref" href="#toc-entry-6">Maintainers</a></h2>
 <p>This module is maintained by the OCA.</p>
-<a class="reference external image-reference" href="https://odoo-community.org"><img alt="Odoo Community Association" src="https://odoo-community.org/logo.png" /></a>
+<a class="reference external image-reference" href="https://odoo-community.org">
+<img alt="Odoo Community Association" src="https://odoo-community.org/logo.png" />
+</a>
 <p>OCA, or the Odoo Community Association, is a nonprofit organization whose
 mission is to support the collaborative development of Odoo features and
 promote its widespread use.</p>
