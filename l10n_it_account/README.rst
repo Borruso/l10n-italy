@@ -73,23 +73,23 @@ Authors
 Contributors
 ------------
 
-- Davide Corio
-- Lorenzo Battistini <lorenzo.battistini@agilebg.com>
-- Alex Comba <alex.comba@agilebg.com>
-- Sergio Zanchetta <https://github.com/primes2h>
-- Gianmarco Conte - Dinamiche Aziendali Sr
-  <gconte@dinamicheaziendali.it>
-- Marco Colombo - Phi S.r.l. <marco.colombo@phi.technology>
-- `TAKOBI <https://takobi.online>`__:
+-  Davide Corio
+-  Lorenzo Battistini <lorenzo.battistini@agilebg.com>
+-  Alex Comba <alex.comba@agilebg.com>
+-  Sergio Zanchetta <https://github.com/primes2h>
+-  Gianmarco Conte - Dinamiche Aziendali Sr
+   <gconte@dinamicheaziendali.it>
+-  Marco Colombo - Phi S.r.l. <marco.colombo@phi.technology>
+-  `TAKOBI <https://takobi.online>`__:
 
-  - Simone Rubino <sir@takobi.online>
+   -  Simone Rubino <sir@takobi.online>
 
 Other credits
 -------------
 
 The development of this module has been financially supported by:
 
-- Odoo Italia Network
+-  Odoo Italia Network
 
 Maintainers
 -----------
