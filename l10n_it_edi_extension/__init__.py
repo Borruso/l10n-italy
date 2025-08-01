@@ -7,7 +7,7 @@ from . import wizards
 
 from odoo.tools import config
 
-from openupgradelib import openupgrade
+from openupgradelib import openupgrade, openupgrade_tools
 
 from odoo.addons.base.models.ir_qweb_fields import Markup, nl2br, nl2br_enclose
 
@@ -218,16 +218,6 @@ def _l10n_it_fatturapa_pre_migration(env):
         ],
         [
             (
-                "account.move.line",
-                "ftpa_line_number",
-            ),
-            (
-                "account.move.line",
-                "sequence",
-            ),
-        ],
-        [
-            (
                 "res.partner",
                 "eori_code",
             ),
@@ -324,16 +314,6 @@ def _l10n_it_fatturapa_pre_migration(env):
             (
                 "res.company",
                 "l10n_edi_it_stable_organization",
-            ),
-        ],
-        [
-            (
-                "res.company",
-                "fatturapa_tax_representative",
-            ),
-            (
-                "res.company",
-                "l10n_it_tax_representative_partner_id",
             ),
         ],
     ]
@@ -622,37 +602,53 @@ def _l10n_it_fatturapa_post_migration(env):
     """
     openupgrade.logged_query(env.cr, query)
 
-    env.cr.execute("SELECT * FROM fatturapa_activity_progress LIMIT 1")
-    if env.cr.fetchone():
-        openupgrade.logged_query(
-            env.cr,
-            """
-            INSERT INTO
-                l10n_it_edi_activity_progress (activity_progress, invoice_id)
-            SELECT
-                fatturapa_activity_progress, invoice_id
-            FROM
-                fatturapa_activity_progress
-            """,
-        )
+    query = """
+        UPDATE account_move_line
+        SET sequence = ftpa_line_number
+    """
+    openupgrade.logged_query(env.cr, query)
 
-    env.cr.execute("SELECT * FROM fatturapa_summary_data LIMIT 1")
-    if env.cr.fetchone():
-        openupgrade.logged_query(
-            env.cr,
-            """
-            INSERT INTO
-                l10n_it_edi_summary_data (
+    query = """
+        UPDATE res_company
+        SET l10n_it_tax_representative_partner_id = fatturapa_tax_representative
+    """
+    openupgrade.logged_query(env.cr, query)
+
+    if openupgrade_tools.table_exists(env.cr, "fatturapa_activity_progress"):
+        env.cr.execute("SELECT * FROM fatturapa_activity_progress LIMIT 1")
+        if env.cr.fetchone():
+            openupgrade.logged_query(
+                env.cr,
+                """
+                INSERT INTO
+                    l10n_it_edi_activity_progress (activity_progress, invoice_id)
+                SELECT
+                    fatturapa_activity_progress, invoice_id
+                FROM
+                    fatturapa_activity_progress
+                """,
+            )
+
+    if openupgrade_tools.table_exists(env.cr, "fatturapa_summary_data"):
+        env.cr.execute("SELECT * FROM fatturapa_summary_data LIMIT 1")
+        if env.cr.fetchone():
+            openupgrade.logged_query(
+                env.cr,
+                """
+                INSERT INTO
+                    l10n_it_edi_summary_data (
+                        tax_rate, non_taxable_nature, incidental_charges, rounding,
+                        amount_untaxed, amount_tax, payability, law_reference,
+                        invoice_id
+                    )
+                SELECT
                     tax_rate, non_taxable_nature, incidental_charges, rounding,
-                    amount_untaxed, amount_tax, payability, law_reference, invoice_id
-                )
-            SELECT
-                tax_rate, non_taxable_nature, incidental_charges, rounding,
-                amount_untaxed, amount_tax, payability, law_reference, invoice_id
-            FROM
-                fatturapa_summary_data
-            """,
-        )
+                    amount_untaxed, amount_tax, payability, law_reference,
+                    invoice_id
+                FROM
+                    fatturapa_summary_data
+                """,
+            )
 
     _l10n_it_fatturapa_post_migration_related_ddt(env)
     _l10n_it_fatturapa_post_migration_delivery_data(env)
@@ -729,73 +725,77 @@ def _l10n_it_fatturapa_in_post_migration(env):
     """
     openupgrade.logged_query(env.cr, query)
 
-    env.cr.execute("SELECT * FROM einvoice_line LIMIT 1")
-    if env.cr.fetchone():
-        openupgrade.logged_query(
-            env.cr,
-            """
-            INSERT INTO
-                l10n_it_edi_line (
+    if openupgrade_tools.table_exists(env.cr, "einvoice_line"):
+        env.cr.execute("SELECT * FROM einvoice_line LIMIT 1")
+        if env.cr.fetchone():
+            openupgrade.logged_query(
+                env.cr,
+                """
+                INSERT INTO
+                    l10n_it_edi_line (
+                        id, invoice_id, line_number, service_type, name, qty, uom,
+                        period_start_date, period_end_date, unit_price,
+                        total_price, tax_amount, wt_amount, tax_kind
+                    )
+                SELECT
                     id, invoice_id, line_number, service_type, name, qty, uom,
                     period_start_date, period_end_date, unit_price,
                     total_price, tax_amount, wt_amount, tax_kind
-                )
-            SELECT
-                id, invoice_id, line_number, service_type, name, qty, uom,
-                period_start_date, period_end_date, unit_price,
-                total_price, tax_amount, wt_amount, tax_kind
-            FROM
-                einvoice_line
-            """,
-        )
+                FROM
+                    einvoice_line
+                """,
+            )
 
-    env.cr.execute("SELECT * FROM fatturapa_article_code LIMIT 1")
-    if env.cr.fetchone():
-        openupgrade.logged_query(
-            env.cr,
-            """
-            INSERT INTO
-                l10n_it_edi_article_code (name, code_val, l10n_it_edi_line_id)
-            SELECT
-                name, code_val, e_invoice_line_id
-            FROM
-                fatturapa_article_code
-            """,
-        )
+    if openupgrade_tools.table_exists(env.cr, "fatturapa_article_code"):
+        env.cr.execute("SELECT * FROM fatturapa_article_code LIMIT 1")
+        if env.cr.fetchone():
+            openupgrade.logged_query(
+                env.cr,
+                """
+                INSERT INTO
+                    l10n_it_edi_article_code (name, code_val, l10n_it_edi_line_id)
+                SELECT
+                    name, code_val, e_invoice_line_id
+                FROM
+                    fatturapa_article_code
+                """,
+            )
 
-    env.cr.execute("SELECT * FROM discount_rise_price LIMIT 1")
-    if env.cr.fetchone():
-        openupgrade.logged_query(
-            env.cr,
-            """
-            INSERT INTO
-                l10n_it_edi_discount_rise_price (
+    if openupgrade_tools.table_exists(env.cr, "discount_rise_price"):
+        env.cr.execute("SELECT * FROM discount_rise_price LIMIT 1")
+        if env.cr.fetchone():
+            openupgrade.logged_query(
+                env.cr,
+                """
+                INSERT INTO
+                    l10n_it_edi_discount_rise_price (
+                        name, percentage, amount, invoice_line_id, invoice_id,
+                        l10n_it_edi_line_id
+                    )
+                SELECT
                     name, percentage, amount, invoice_line_id, invoice_id,
-                    l10n_it_edi_line_id
-                )
-            SELECT
-                name, percentage, amount, invoice_line_id, invoice_id,
-                e_invoice_line_id
-            FROM
-                discount_rise_price
-            """,
-        )
+                    e_invoice_line_id
+                FROM
+                    discount_rise_price
+                """,
+            )
 
-    env.cr.execute("SELECT * FROM einvoice_line_other_data LIMIT 1")
-    if env.cr.fetchone():
-        openupgrade.logged_query(
-            env.cr,
-            """
-            INSERT INTO
-                l10n_it_edi_line_other_data (
-                    l10n_it_edi_line_id, name, text_ref, num_ref, date_ref
-                )
-            SELECT
-                e_invoice_line_id, name, text_ref, num_ref, date_ref
-            FROM
-                einvoice_line_other_data
-            """,
-        )
+    if openupgrade_tools.table_exists(env.cr, "einvoice_line_other_data"):
+        env.cr.execute("SELECT * FROM einvoice_line_other_data LIMIT 1")
+        if env.cr.fetchone():
+            openupgrade.logged_query(
+                env.cr,
+                """
+                INSERT INTO
+                    l10n_it_edi_line_other_data (
+                        l10n_it_edi_line_id, name, text_ref, num_ref, date_ref
+                    )
+                SELECT
+                    e_invoice_line_id, name, text_ref, num_ref, date_ref
+                FROM
+                    einvoice_line_other_data
+                """,
+            )
 
     env.cr.execute("""
         SELECT
