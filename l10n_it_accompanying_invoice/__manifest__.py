@@ -17,6 +17,7 @@
     "installable": True,
     "depends": [
         "l10n_it_delivery_note",
+        "l10n_it_edi_extension",
     ],
     "data": [
         "views/account.xml",

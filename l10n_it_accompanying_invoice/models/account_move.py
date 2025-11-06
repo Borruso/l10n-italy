@@ -33,3 +33,14 @@ class AccountMove(models.Model):
                 invoice.delivery_goods_appearance_id = (
                     partner.default_goods_appearance_id
                 )
+
+    def _l10n_it_edi_get_values(self, pdf_values=None):
+        res = super()._l10n_it_edi_get_values(pdf_values)
+
+        delivery_carrier_info_values = (
+            self.delivery_carrier_id._l10n_it_edi_get_values()
+        )
+
+        res["delivery_carrier_info"] = delivery_carrier_info_values
+
+        return res
