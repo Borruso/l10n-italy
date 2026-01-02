@@ -148,9 +148,9 @@ class AccountPaymentOrderInherit(models.Model):
             pain_root, gen_args
         )
         grp_hdr_node = pain_root.xpath("//GrpHdr")[0]
-        grp_hdr_node.attrib[
-            "xmlns"
-        ] = f"urn:CBI:xsd:CBISDDReqLogMsg{gen_args['version']}"
+        grp_hdr_node.attrib["xmlns"] = (
+            f"urn:CBI:xsd:CBISDDReqLogMsg{gen_args['version']}"
+        )
 
         amount_control_sum_a = 0.0
         lines_per_group, transactions_count_a = self._grouping_payments()
@@ -187,9 +187,9 @@ class AccountPaymentOrderInherit(models.Model):
             # Add pain to payment info tag (CBI required)
             pmt_inf_nodes = pain_root.xpath("//PmtInf")
             for pmt_inf_node in pmt_inf_nodes:
-                pmt_inf_node.attrib[
-                    "xmlns"
-                ] = f"urn:CBI:xsd:CBISDDReqLogMsg{gen_args['version']}"
+                pmt_inf_node.attrib["xmlns"] = (
+                    f"urn:CBI:xsd:CBISDDReqLogMsg{gen_args['version']}"
+                )
             tags_to_remove = ["//PmtInf//NbOfTxs", "//PmtInf//CtrlSum"]
             for tag in tags_to_remove:
                 elements_to_remove = pain_root.xpath(tag)

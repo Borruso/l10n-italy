@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <odoo noupdate="1">
-
     <record id="cbi_sdd_italy_00_01_00" model="account.payment.method">
         <field name="name">CBI SDD Italy for customers (00.01.00)</field>
         <field name="code">cbi_sdd_italy_00_01_00</field>
@@ -18,5 +17,4 @@
         <field name="mandate_required" eval="True" />
         <field name="pain_version">CBIBdySDDReq.00.01.01</field>
     </record>
-
 </odoo>
