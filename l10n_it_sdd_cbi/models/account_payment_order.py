@@ -3,7 +3,7 @@
 
 from lxml import etree
 
-from odoo import _, api, fields, models
+from odoo import api, fields, models
 from odoo.exceptions import UserError
 
 
@@ -16,7 +16,7 @@ class AccountPaymentOrderInherit(models.Model):
             ("B2B", "Enterprise (B2B)"),
         ],
         default=lambda self: self.env.user.company_id.sepa_payment_order_schema,
-        track_visibility="onchange",
+        tracking=True,
     )
 
     @api.model
@@ -62,7 +62,7 @@ class AccountPaymentOrderInherit(models.Model):
         if pain_flavor.startswith("CBIBdySDDReq"):
             nsmap = {
                 "xsi": "http://www.w3.org/2001/XMLSchema-instance",
-                None: "urn:CBI:xsd:%s" % pain_flavor,
+                None: f"urn:CBI:xsd:{pain_flavor}",
             }
             return nsmap
 
@@ -73,9 +73,10 @@ class AccountPaymentOrderInherit(models.Model):
 
         if not pain_flavor.startswith("CBIBdySDDReq"):
             raise UserError(
-                _(
-                    f"Payment Type Code '{pain_flavor}' is not supported. "
-                    "Only 'CBIBdySDDReq' is allowed for CBI SDD Italy."
+                self.env._(
+                    "Payment Type Code '%s' is not supported. "
+                    "Only 'CBIBdySDDReq' is allowed for CBI SDD Italy.",
+                    pain_flavor,
                 )
             )
 
@@ -111,14 +112,15 @@ class AccountPaymentOrderInherit(models.Model):
         )
         if not initiating_party_issuer or initiating_party_issuer != "CBI":
             raise UserError(
-                _(
+                self.env._(
                     "Missing 'Initiating Party Issuer' must be set to 'CBI' "
-                    f"for the company '{self.company_id.name}'."
+                    "for the company '%s'.",
+                    self.company_id.name,
                 )
             )
         if not self.sepa:
             raise UserError(
-                _(
+                self.env._(
                     "Please check the IBAN of the company's and partner's bank account."
                     " To generate the SDD file, the account must be of type IBAN."
                 )
@@ -131,12 +133,16 @@ class AccountPaymentOrderInherit(models.Model):
 
         phyMsgInf = etree.SubElement(xml_root, "PhyMsgInf")
         phyMsgTpCd = etree.SubElement(phyMsgInf, "PhyMsgTpCd")
+
         if self.scheme == "CORE":
             phyMsgTpCd.text = "INC-SDDC-01"
         elif self.scheme == "B2B":
             phyMsgTpCd.text = "INC-SDDB-01"
         else:
-            raise UserError(_(f"Invalid CBI SDD Italy Order Scheme {self.scheme}"))
+            raise UserError(
+                self.env._("Invalid CBI SDD Italy Order Scheme %s", self.scheme)
+            )
+
         numLogMsg = etree.SubElement(phyMsgInf, "NbOfLogMsg")
         numLogMsg.text = "1"
 
@@ -159,8 +165,8 @@ class AccountPaymentOrderInherit(models.Model):
             (requested_date, priority, categ_purpose, sequence_type, scheme),
             lines,
         ) in list(lines_per_group.items()):
-            requested_date = fields.Date.to_string(requested_date)
             # B. Payment info
+            requested_date = fields.Date.to_string(requested_date)
             (
                 payment_info,
                 nb_of_transactions_b,
@@ -184,6 +190,7 @@ class AccountPaymentOrderInherit(models.Model):
                 },
                 gen_args,
             )
+
             # Add pain to payment info tag (CBI required)
             pmt_inf_nodes = pain_root.xpath("//PmtInf")
             for pmt_inf_node in pmt_inf_nodes:
@@ -256,7 +263,7 @@ class AccountPaymentOrderInherit(models.Model):
                 instructed_amount = etree.SubElement(
                     dd_transaction_info, "InstdAmt", Ccy=currency_name
                 )
-                instructed_amount.text = "%.2f" % line.amount
+                instructed_amount.text = f"{line.amount:.2f}"
                 amount_control_sum_a += line.amount
                 amount_control_sum_b += line.amount
                 dd_transaction = etree.SubElement(dd_transaction_info, "DrctDbtTx")
@@ -278,7 +285,10 @@ class AccountPaymentOrderInherit(models.Model):
                 mandate_signature_date.text = self._prepare_field(
                     "Mandate Signature Date",
                     "signature_date",
-                    {"signature_date": fields.Date.to_string(mandate.signature_date)},
+                    {
+                        "line": line,
+                        "signature_date": fields.Date.to_string(mandate.signature_date),
+                    },
                     10,
                     gen_args=gen_args,
                 )
@@ -321,8 +331,10 @@ class AccountPaymentOrderInherit(models.Model):
 
                 self.generate_remittance_info_block(dd_transaction_info, line, gen_args)
 
+            nb_of_transactions_b.text = str(transactions_count_b)
+            control_sum_b.text = f"{amount_control_sum_b:.2f}"
         nb_of_transactions_a.text = str(transactions_count_a)
-        control_sum_a.text = "%.2f" % amount_control_sum_a
+        control_sum_a.text = f"{amount_control_sum_a:.2f}"
 
         return self.finalize_sepa_file_creation(xml_root, gen_args)
 
@@ -346,17 +358,14 @@ class AccountPaymentOrderInherit(models.Model):
                 seq_type = seq_type_map[seq_type_label]
             else:
                 raise UserError(
-                    _(
+                    self.env._(
                         "Invalid mandate type in '%s'. Valid ones are 'Recurrent' "
-                        "or 'One-Off'"
+                        "or 'One-Off'",
+                        payment_line.mandate_id.unique_mandate_reference,
                     )
-                    % payment_line.mandate_id.unique_mandate_reference
                 )
-            # The field line.date is the requested payment date
-            # taking into account the 'date_preferred' setting
-            # cf account_banking_payment_export/models/account_payment.py
-            # in the inherit of action_open()
-            key = (line.date, priority, categ_purpose, seq_type, scheme)
+            # The field line.payment_line_date is the requested payment date
+            key = (line.payment_line_date, priority, categ_purpose, seq_type, scheme)
             if key in lines_per_group:
                 lines_per_group[key].append(line)
             else:

@@ -7,6 +7,7 @@
         <field name="bank_account_required" eval="False" />
         <field name="mandate_required" eval="True" />
         <field name="pain_version">CBIBdySDDReq.00.01.00</field>
+        <field name="warn_not_sepa" eval="True" />
     </record>
 
     <record id="cbi_sdd_italy_00_01_01" model="account.payment.method">
@@ -16,5 +17,6 @@
         <field name="bank_account_required" eval="False" />
         <field name="mandate_required" eval="True" />
         <field name="pain_version">CBIBdySDDReq.00.01.01</field>
+        <field name="warn_not_sepa" eval="True" />
     </record>
 </odoo>

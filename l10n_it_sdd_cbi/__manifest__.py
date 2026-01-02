@@ -3,8 +3,7 @@
 
 {
     "name": "ITA - SEPA Direct Debit",
-    "version": "14.0.1.0.1",
-    "development_status": "Beta",
+    "version": "18.0.1.0.0",
     "category": "Localization/Italy",
     "summary": "Create SEPA files for CBI SDD Italy",
     "author": "Dinamiche Aziendali srl, Odoo Community Association (OCA)",
@@ -22,6 +21,5 @@
         "views/account_payment_order_view.xml",
         "views/res_config_settings_view.xml",
     ],
-    "post_init_hook": "update_bank_journals",
     "installable": True,
 }

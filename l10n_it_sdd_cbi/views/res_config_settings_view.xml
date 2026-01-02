@@ -9,16 +9,12 @@
         />
         <field name="arch" type="xml">
             <xpath
-                expr="//div/field[@name='sepa_creditor_identifier']/.."
+                expr="//setting/field[@name='sepa_creditor_identifier']/.."
                 position="after"
             >
-                <div class="row mt16">
-                    <label
-                        for="sepa_payment_order_schema"
-                        class="col-md-3 o_light_label"
-                    />
+                <setting>
                     <field name="sepa_payment_order_schema" />
-                </div>
+                </setting>
             </xpath>
         </field>
     </record>
