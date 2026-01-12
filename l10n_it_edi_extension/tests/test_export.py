@@ -49,7 +49,7 @@ class TestExport(Common):
         invoice.l10n_it_origin_document_date = invoice.date
         invoice.l10n_it_origin_document_name = "PO0123"
         invoice.l10n_it_cup = "0123456789"
-        invoice.l10n_it_cup = "0987654321"
+        invoice.l10n_it_cig = "0987654321"
         invoice.partner_shipping_id = self.italian_shipping_partner_a
         invoice.action_post()
         self._assert_export_invoice(invoice, "partner_shipping_sequence.xml")
