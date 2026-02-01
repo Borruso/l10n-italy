@@ -4,8 +4,9 @@
 import logging
 import operator
 
-from odoo import _, api, fields, models, tools
+from odoo import api, fields, models, tools
 from odoo.exceptions import ValidationError
+from odoo.fields import Domain
 from odoo.tools.misc import formatLang
 
 _logger = logging.getLogger(__name__)
@@ -85,21 +86,23 @@ class FinancialStatementEU(models.Model):
                 p = ""
             line.complete_name = f"[{line.code}] {p}{line.name}"
 
-    def name_get(self):
-        res = []
+    def _compute_display_name(self):
         for line in self:
-            res.append((line.id, line.complete_name))
-        return res
+            line.display_name = line.complete_name
 
     @api.constrains("code", "zone_bal")
     def _check_code_zone(self):
         for line in self:
             if (line.zone_bal == "PA") and (not line.code.startswith("PA")):
-                raise ValidationError(_("ASSETS codes must starting by PA"))
+                raise ValidationError(self.env._("ASSETS codes must starting by PA"))
             elif (line.zone_bal == "PP") and (not line.code.startswith("PP")):
-                raise ValidationError(_("LIABILITIES codes must starting by PP"))
+                raise ValidationError(
+                    self.env._("LIABILITIES codes must starting by PP")
+                )
             elif (line.zone_bal == "EC") and (not line.code.startswith("E")):
-                raise ValidationError(_("INCOME STATEMENT codes must starting by E"))
+                raise ValidationError(
+                    self.env._("INCOME STATEMENT codes must starting by E")
+                )
 
     @api.model
     def financial_statement_eu_account_association(
@@ -109,7 +112,7 @@ class FinancialStatementEU(models.Model):
         credit_fse_id,
         force_update,
     ):
-        for company in self.env["res.company"].search([]):
+        for company in self.env.user.company_ids:
             acc_ids = (
                 self.env["account.account"]
                 .with_company(company)
@@ -197,16 +200,17 @@ class FinancialStatementEU(models.Model):
 
     def add_calc_type_domain(self, domain, calc_type, financial_statement_eu_id):
         if calc_type == "d":
-            domain.append(
-                ("financial_statement_eu_debit_id", "=", financial_statement_eu_id)
+            domain &= Domain(
+                "financial_statement_eu_debit_id", "=", financial_statement_eu_id
             )
         elif calc_type == "c":
-            domain.append(
-                ("financial_statement_eu_credit_id", "=", financial_statement_eu_id)
+            domain &= Domain(
+                "financial_statement_eu_credit_id", "=", financial_statement_eu_id
             )
         elif calc_type == "non_assoc":
-            domain.append(("financial_statement_eu_debit_id", "=", False))
-            domain.append(("financial_statement_eu_credit_id", "=", False))
+            domain &= Domain("financial_statement_eu_debit_id", "=", False)
+            domain &= Domain("financial_statement_eu_credit_id", "=", False)
+        return domain
 
     def get_account_list_amount(
         self,
@@ -224,59 +228,46 @@ class FinancialStatementEU(models.Model):
         account_list,
     ):
         currency_precision = currency_id.decimal_places
-        domain = []
-        domain.append(("company_ids", "in", company_id))
-        self.add_calc_type_domain(domain, calc_type, financial_statement_eu_id)
+        domain = Domain("company_ids", "in", company_id)
+        domain = self.add_calc_type_domain(domain, calc_type, financial_statement_eu_id)
         acc_model = self.env["account.account"]
-        account_ids = acc_model.read_group(
+        account_ids = acc_model.formatted_read_group(
             domain,
-            fields=[
+            [
                 "id",
                 "code",
                 "name",
                 "financial_statement_eu_debit_id",
                 "financial_statement_eu_credit_id",
             ],
-            groupby=[
-                "id",
-                "code",
-                "name",
-                "financial_statement_eu_debit_id",
-                "financial_statement_eu_credit_id",
-            ],
-            orderby="code",
-            lazy=False,
+            ["__count"],
+            order="code",
         )
         if account_ids:
             for item in account_ids:
-                account_id = False
-                for d in item.get("__domain"):
-                    if type(d) is tuple and d[0] == "id":
-                        account_id = d[2]
+                account_id = item.get("id", False)
                 if account_id:
                     acc_credit_id = item.get("financial_statement_eu_credit_id")
                     acc_debit_id = item.get("financial_statement_eu_debit_id")
-                    domain = []
-                    domain.append(("company_id", "=", company_id))
-                    domain.append(("account_id", "=", account_id))
-                    domain.append(("date", ">=", date_from))
-                    domain.append(("date", "<=", date_to))
+                    domain = Domain("company_id", "=", company_id)
+                    domain &= Domain("account_id", "=", account_id[0])
+                    domain &= Domain("date", ">=", date_from)
+                    domain &= Domain("date", "<=", date_to)
                     if only_posted_move:
-                        domain.append(("move_id.state", "=", "posted"))
+                        domain &= Domain("move_id.state", "=", "posted")
                     if ignore_closing_move:
-                        domain.append(("move_id.closing_type", "!=", "closing"))
-                        domain.append(("move_id.closing_type", "!=", "loss_profit"))
+                        domain &= Domain("move_id.closing_type", "!=", "closing")
+                        domain &= Domain("move_id.closing_type", "!=", "loss_profit")
                     aml_model = self.env["account.move.line"]
-                    amls = aml_model.read_group(
+                    amls = aml_model.formatted_read_group(
                         domain,
-                        ["debit", "credit", "account_id"],
                         ["account_id"],
-                        lazy=False,
+                        ["__count", "debit:sum", "credit:sum"],
                     )
                     if amls:
                         for line in amls:
                             acc_amount = tools.float_round(
-                                line.get("debit") - line.get("credit"),
+                                line.get("debit:sum") - line.get("credit:sum"),
                                 currency_precision,
                             )
                             if (
@@ -345,6 +336,8 @@ class FinancialStatementEU(models.Model):
         if ignore_closing_move:
             if not self.env["account.move"].fields_get(allfields=["closing_type"]):
                 ignore_closing_move = False
+
+        # pylint: disable=no-search-all
         financial_statement_eu_ids = self.search([])  # env["financial.statement.eu"].
         for item in financial_statement_eu_ids:
             financial_statement_eu_amount = 0
@@ -481,7 +474,7 @@ class FinancialStatementEU(models.Model):
                         )
         if acc_ignore != "":
             log_warnings += (
-                _("There are accounts to ignore but with non-zero amount:")
+                self.env._("There are accounts to ignore but with non-zero amount:")
                 + "\n"
                 + acc_ignore
             )
@@ -512,23 +505,21 @@ class FinancialStatementEU(models.Model):
         ):
             financial_statement_state = "UNBALANCED"
             log_warnings = log_warnings + (
-                _(
+                self.env._(
                     "Unbalanced financial statements: "
                     "%(tot_assets)s (Assets) - %(tot_liabilities)s (Liabilities)"
-                    " = %(diff)s"
-                )
-                % {
-                    "tot_assets": formatLang(
+                    " = %(diff)s",
+                    tot_assets=formatLang(
                         self.env,
                         financial_statement_eu_lines["PA"]["rounded_amount"],
                         currency_obj=currency_id,
                     ),
-                    "tot_liabilities": formatLang(
+                    tot_liabilities=formatLang(
                         self.env,
                         financial_statement_eu_lines["PP"]["rounded_amount"],
                         currency_obj=currency_id,
                     ),
-                    "diff": formatLang(
+                    diff=formatLang(
                         self.env,
                         tools.float_round(
                             financial_statement_eu_lines["PA"]["rounded_amount"]
@@ -537,13 +528,15 @@ class FinancialStatementEU(models.Model):
                         ),
                         currency_obj=currency_id,
                     ),
-                }
+                )
             )
         if len(unlinked_account) > 0:
             financial_statement_state = "UNLINKED_ACCOUNTS"
             log_warnings += (
                 "\n"
-                + _("There are accounts not linked to any financial statement line:")
+                + self.env._(
+                    "There are accounts not linked to any financial statement line:"
+                )
                 + "\n"
             )
 
