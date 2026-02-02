@@ -43,6 +43,7 @@
 
     <record id="action_liquidazione_export_file" model="ir.actions.act_window">
         <field name="name">Export VAT statement communication file</field>
+        <field name="path">export-vat-statement-communication-file</field>
         <field name="res_model">comunicazione.liquidazione.export.file</field>
         <field name="view_mode">form</field>
         <field name="view_id" ref="wizard_liquidazione_export_file" />
