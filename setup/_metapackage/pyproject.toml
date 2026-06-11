@@ -1,7 +1,8 @@
 [project]
 name = "odoo-addons-oca-l10n-italy"
-version = "19.0.20260608.0"
+version = "19.0.20260611.0"
 dependencies = [
+    "odoo-addon-l10n_it_abicab==19.0.*",
     "odoo-addon-l10n_it_ateco==19.0.*",
 ]
 classifiers=[
